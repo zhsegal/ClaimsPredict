@@ -1,0 +1,5 @@
+{
+  "object": "TEXT",
+  "float": "REAL",
+  "int": "INTEGER"
+}
