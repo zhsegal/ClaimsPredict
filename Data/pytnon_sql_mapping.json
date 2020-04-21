@@ -1,5 +1,6 @@
 {
   "object": "TEXT",
   "float": "REAL",
-  "int": "INTEGER"
+  "int": "INTEGER",
+  "dtype('float64')": "REAL"
 }
