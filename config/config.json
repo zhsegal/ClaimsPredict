@@ -1,0 +1,6 @@
+{
+  "multiprocessing": {
+    "process_number": 8,
+    "batch_size": 5
+  }
+}

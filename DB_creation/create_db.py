@@ -45,7 +45,7 @@ class OutpatientDB(BaseDB):
     def __init__(self):
         super().__init__()
         self.table_name='OUTPATIENT'
-        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_1.csv',nrows=100)
+        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_1.csv')
 
     def make_sql(self):
         oupatient_claim_columns = ['DESYNPUF_ID', 'CLM_ID', 'SEGMENT', 'CLM_FROM_DT', 'CLM_THRU_DT', 'PRVDR_NUM', 'CLM_PMT_AMT', 'NCH_PRMRY_PYR_CLM_PD_AMT',
@@ -62,7 +62,7 @@ class OutpatientDB(BaseDB):
 class InpatientDB(BaseDB):
     def __init__(self):
         super().__init__()
-        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_1.csv',nrows=10)
+        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_1.csv')
         self.table_name = 'INPATIENT'
 
 
@@ -91,6 +91,7 @@ if __name__ == '__main__':
     pd.set_option('display.width', 320)
 
     OutpatientDB().make_sql()
+    InpatientDB().make_sql()
 
     # DB_columns=self.create_DB_columns(diags)
     # #DB_columns='id integer PRIMARY KEY, name text NOT NULL'

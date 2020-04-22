@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="TestDB" uuid="34156df9-ce1a-42ae-9a3e-5a4edc9af458">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DB/TestDB.db</jdbc-url>
-    </data-source>
-    <data-source source="LOCAL" name="INPATIENT_TABLE" uuid="14d03a9c-772d-4cc8-b85b-48cfa1207628">
+    <data-source source="LOCAL" name="INPATIENT_TABLE" uuid="983aeb63-7470-4078-917d-e8ecfd961fb5">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
@@ -21,11 +15,11 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="INPATIENT_DIAG_TABLE" uuid="897b6a37-2803-4bf4-9a51-3ed9086fa046">
+    <data-source source="LOCAL" name="OUTPATIENT_HCPCS_TABLE" uuid="3e3b8426-3d7c-43f2-9a74-217ea4f211d3">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DB/INPATIENT_DIAG_TABLE.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DB/OUTPATIENT_HCPCS_TABLE.db</jdbc-url>
       <libraries>
         <library>
           <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.25.1/sqlite-jdbc-3.25.1.jar</url>
@@ -35,11 +29,11 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="INPATIENT_HCPCS_TABLE" uuid="5f5f44fa-1842-4c21-b97a-5b5df2b15a8b">
+    <data-source source="LOCAL" name="INPATIENT_DIAG_TABLE" uuid="435a781e-5833-49d3-bb20-cdde7e357839">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DB/INPATIENT_HCPCS_TABLE.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/DB/INPATIENT_DIAG_TABLE.db</jdbc-url>
       <libraries>
         <library>
           <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.25.1/sqlite-jdbc-3.25.1.jar</url>
