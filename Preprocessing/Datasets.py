@@ -27,7 +27,8 @@ class InpatientDataset(Dataset):
     def get_patient_lines(self, id_list):
         conn= sqlite3.connect(self.db_path)
         sql_query = self.get_string_from_ids(id_list,self.patient_id_columns,self.table_name)
-        g = pd.read_sql(sql_query, conn)
+        data=  pd.read_sql(sql_query, conn)
+        return data
         conn.close()
 
 
