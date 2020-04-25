@@ -2,5 +2,15 @@
   "multiprocessing": {
     "process_number": 8,
     "batch_size": 5
+  },
+  "preprocessing": {
+    "tables": {
+      "ICD9": "Data/icd9dx2010.csv"
+    },
+    "method_names": {
+      "diagnosis": "DIAG",
+      "procedure": "PROCS",
+      "HSPCS": "HCPCS"
+    }
   }
 }

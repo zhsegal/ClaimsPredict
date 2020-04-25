@@ -6,6 +6,11 @@ class BaseFeature():
     def __init__(self):
         self.config=Configuration().get_config()
         self.batch_size=self.config['multiprocessing']['batch_size']
+        self.diagnosis_prefix=self.config['preprocessing']['method_names']['diagnosis']
+        self.diagnosis_column=f'{self.diagnosis_prefix}_CODE'
+        self.patient_id='DESYNPUF_ID'
+
+
     def calculate_feature(self, ids):
 
         added_features = self.run_multiprocess(ids)
@@ -30,6 +35,16 @@ class BaseFeature():
     def chunkizer(self, ids,size):
         for i in range(0, len(ids), size):
             yield ids[i:i + size]
+
+
+    def create_code_symptom_mapping (self,table, item_dict):
+        mapping=pd.DataFrame()
+        for key in item_dict:
+            values='|'.join(item_dict.get(key))
+            item_df=table[table.shortdesc.str.contains(values)]
+            item_df['item']=key
+            mapping=mapping.append(item_df)
+        return mapping
 
     def calculate_batch(self, ids):
         raise NotImplemented
