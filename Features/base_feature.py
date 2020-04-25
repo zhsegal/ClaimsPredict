@@ -37,11 +37,11 @@ class BaseFeature():
             yield ids[i:i + size]
 
 
-    def create_code_symptom_mapping (self,table, item_dict):
+    def create_code_symptom_mapping (self,table, item_dict, item_description_columns):
         mapping=pd.DataFrame()
         for key in item_dict:
             values='|'.join(item_dict.get(key))
-            item_df=table[table.shortdesc.str.contains(values)]
+            item_df=table[table[item_description_columns].str.contains(values)]
             item_df['item']=key
             mapping=mapping.append(item_df)
         return mapping
