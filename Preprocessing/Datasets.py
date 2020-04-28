@@ -1,6 +1,6 @@
 import pandas as pd
 import sqlite3
-from Preprocessing import utils
+from utils.utils import parse_date_column
 
 class Dataset:
     def __init__(self):
@@ -16,21 +16,39 @@ class Dataset:
     def get_table_name(self, table_type, methods):
         return f'{table_type}_{methods}_TABLE'
 
+    def get_lines_from_sql_by_id(self, ids, db_path, table_name):
+        conn = sqlite3.connect(db_path)
+        sql_query = self.get_string_from_ids(ids, self.patient_id_columns, table_name)
+        data = pd.read_sql(sql_query, conn)
+        conn.close()
+        return data
+
 class InpatientDataset(Dataset):
     def __init__(self, method):
         super().__init__()
         self.table_type='INPATIENT'
         self.table_name=self.get_table_name(self.table_type, method)
         self.db_path=f'DB/{self.table_name}.db'
-
+        self.date_column='CLM_FROM_DT'
 
     def get_patient_lines(self, id_list):
-        conn= sqlite3.connect(self.db_path)
-        sql_query = self.get_string_from_ids(id_list,self.patient_id_columns,self.table_name)
-        data=  pd.read_sql(sql_query, conn)
+        data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
+        data = parse_date_column(data, self.date_column)
         return data
-        conn.close()
 
+class OutpatientDataset(Dataset):
+    def __init__(self, method):
+        super().__init__()
+        self.table_type = 'OUTPATIENT'
+        self.table_name = self.get_table_name(self.table_type, method)
+        self.db_path = f'DB/{self.table_name}.db'
+        self.date_column = 'CLM_FROM_DT'
+
+    def get_patient_lines(self, id_list):
+        data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
+        data=data.dropna(subset=['CLM_FROM_DT'])
+        data = parse_date_column(data, self.date_column)
+        return data
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)

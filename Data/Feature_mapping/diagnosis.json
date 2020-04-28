@@ -1,4 +1,6 @@
-{"pneumonia": ["pneumonia","anal"],
+{"diagnosis_mapping":
+  {"pneumonia": ["pneumonia","anal"],
   "abdominal_pain": ["Abdmnal pain"],
-  "hypertension": ["hypertension","Hypertension"]
+  "hypertension": ["hypertension","Hypertension"]},
+  "categorical_diagnosis": ["hypertension"]
 }

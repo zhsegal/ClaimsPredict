@@ -9,7 +9,10 @@ class BaseFeature():
         self.diagnosis_prefix=self.config['preprocessing']['method_names']['diagnosis']
         self.diagnosis_column=f'{self.diagnosis_prefix}_CODE'
         self.patient_id='DESYNPUF_ID'
-
+        self.icd9_table_description_col = 'shortdesc'
+        self.icd9_table = pd.read_csv(self.config['preprocessing']['tables']['ICD9'])
+        self.item_col_name='item'
+        self.diag_features_prefix='DIAG'
 
     def calculate_feature(self, ids):
 
@@ -45,6 +48,25 @@ class BaseFeature():
             item_df['item']=key
             mapping=mapping.append(item_df)
         return mapping
+
+    def get_zero_one_features(self, count_data, cat_features):
+        count_data[count_data[cat_features] > 0] = 1
+        return count_data
+
+    def merge_with_symptom_name(self, df, items_dict, feature_col_name):
+        code_symptom_map = self.create_code_symptom_mapping(self.icd9_table, items_dict,
+                                                            self.icd9_table_description_col)
+        df = df[df[self.diagnosis_column].isin(code_symptom_map.dgns_cd.values)]
+        df_with_symptom = df.merge(code_symptom_map[[feature_col_name, self.item_col_name]], left_on=self.diagnosis_column,
+                                   right_on=feature_col_name, how='left')
+        return df_with_symptom
+
+    def count_feature (self, df):
+
+        counts = df.groupby([self.patient_id, self.item_col_name]).size().unstack(fill_value=0)
+        return counts
+
+
 
     def calculate_batch(self, ids):
         raise NotImplemented

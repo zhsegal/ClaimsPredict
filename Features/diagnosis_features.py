@@ -1,29 +1,35 @@
 import pandas as pd
 from Features.base_feature import BaseFeature
-from Preprocessing.Datasets import InpatientDataset
+from Preprocessing.Datasets import InpatientDataset, OutpatientDataset
 import json
+from utils.trends import get_trends
 
 class Diagnosis_features(BaseFeature):
     def __init__(self):
         super().__init__()
-        self.icd9_table = pd.read_csv(self.config['preprocessing']['tables']['ICD9'])
+
         with open("Data/Feature_mapping/diagnosis.json", "r") as f:
             self.diags_dict = json.load(f)
-        self.diags_table_col='dgns_cd'
-        self.icd9_table_description_col='shortdesc'
-
+        self.mapping_prefix='diagnosis_mapping'
+        self.method_name_columns= 'dgns_cd'
+        self.categorical_features_prefix='categorical_diagnosis'
+        self.date_column_name='CLM_FROM_DT'
     def calculate_batch(self, ids):
-        inpat_diags=InpatientDataset('DIAG').get_patient_lines(ids)
-        counts=self.count_feature(inpat_diags, self.diags_dict,self.diags_table_col)
+        inpat_diags=InpatientDataset(self.diag_features_prefix).get_patient_lines(ids)
+        inpat_diags_with_symptom_name=self.merge_with_symptom_name(inpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
+
+        outpat_diags=OutpatientDataset(self.diag_features_prefix).get_patient_lines(ids)
+        outpat_diags_with_symptom_name=self.merge_with_symptom_name(outpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
+
+        counts=self.count_feature(inpat_diags_with_symptom_name)
+        zero_one_features=self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
+        trends=get_trends(outpat_diags_with_symptom_name, self.diags_dict[self.mapping_prefix], self.item_col_name, self.patient_id, self.date_column_name)
         return counts
 
 
-    def count_feature (self, df, items_dict,item_col):
-        code_symptom_map = self.create_code_symptom_mapping(self.icd9_table, items_dict,self.icd9_table_description_col)
-        df=df[df[self.diagnosis_column].isin(code_symptom_map.dgns_cd.values)]
-        df_with_symptom=df.merge(code_symptom_map[[item_col,'item']], left_on=self.diagnosis_column, right_on=item_col, how='left')
-        counts = df_with_symptom.groupby([self.patient_id, 'item']).size().unstack(fill_value=0)
-        return counts
+
+
+
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)

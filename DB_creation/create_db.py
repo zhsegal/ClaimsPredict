@@ -38,7 +38,14 @@ class BaseDB:
 
         print(f'uploaded {table_name} to db')
 
+    def create_merged_sql(self, df1, df2, table_name):
+        with sqlite3.connect(f'DB/{table_name}.db') as conn:   # You can create a new database by changing the name within the quotes
+            cursor = conn.cursor()  # The database will be saved in the location where your 'py' file is saved
 
+            df=pd.concat([df1,df2])
+            df.to_sql(table_name, conn, if_exists='append', index=False)
+
+        print(f'uploaded {table_name} to db')
 
 
 class OutpatientDB(BaseDB):
@@ -84,14 +91,39 @@ class InpatientDB(BaseDB):
         self.create_sql(hcpcs, f'{self.table_name}_{self.hcpcs_name}_TABLE')
 
 
+class CarrierDB(BaseDB):
+    def __init__(self):
+        super().__init__()
+        self.dataframe1=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Carrier_Claims_Sample_1A.csv')
+        self.dataframe2 = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Carrier_Claims_Sample_1B.csv')
+        self.table_name = 'CARRIER'
 
+
+    def make_sql(self):
+        carrier_claim_columns = ['DESYNPUF_ID', 'CLM_ID', 'CLM_FROM_DT', 'CLM_THRU_DT','PRF_PHYSN_NPI_1',
+       'PRF_PHYSN_NPI_2', 'PRF_PHYSN_NPI_3','LINE_NCH_PMT_AMT_1', 'LINE_NCH_PMT_AMT_2', 'LINE_NCH_PMT_AMT_3',
+       'LINE_NCH_PMT_AMT_4']
+
+        diags1 = self.create_table(self.dataframe1, carrier_claim_columns, self.diags_name, self.diag_columns_str)
+        hcpcs1 = self.create_table(self.dataframe1, carrier_claim_columns, self.hcpcs_name, self.hcpcs_columns_str)
+
+
+
+        diags2 = self.create_table(self.dataframe2, carrier_claim_columns, self.diags_name, self.diag_columns_str)
+        hcpcs2 = self.create_table(self.dataframe2, carrier_claim_columns, self.hcpcs_name, self.hcpcs_columns_str)
+
+
+        self.create_merged_sql(diags1, diags2, f'{self.table_name}_{self.diags_name}_TABLE')
+        self.create_merged_sql(hcpcs1, hcpcs2, f'{self.table_name}_{self.hcpcs_name}_TABLE')
+
+        return None
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    OutpatientDB().make_sql()
-    InpatientDB().make_sql()
+    CarrierDB().make_sql()
+
 
     # DB_columns=self.create_DB_columns(diags)
     # #DB_columns='id integer PRIMARY KEY, name text NOT NULL'
