@@ -48,6 +48,15 @@ class BaseDB:
         print(f'uploaded {table_name} to db')
 
 
+class BeneficiaryDB(BaseDB):
+    def __init__(self):
+        super().__init__()
+        self.table_name='BENEFICIARY'
+        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv')
+
+    def make_sql(self):
+        self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
+
 class OutpatientDB(BaseDB):
     def __init__(self):
         super().__init__()
@@ -122,7 +131,7 @@ if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    CarrierDB().make_sql()
+    BeneficiaryDB().make_sql()
 
 
     # DB_columns=self.create_DB_columns(diags)

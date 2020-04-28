@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from config.configuration import Configuration
 import pandas as pd
+from datetime import datetime
 
 class BaseFeature():
     def __init__(self):
@@ -13,6 +14,7 @@ class BaseFeature():
         self.icd9_table = pd.read_csv(self.config['preprocessing']['tables']['ICD9'])
         self.item_col_name='item'
         self.diag_features_prefix='DIAG'
+        self.train_end_time=datetime.strptime(self.config['experiment']['experiment'], '%Y:%m:%d')
 
     def calculate_feature(self, ids):
 
