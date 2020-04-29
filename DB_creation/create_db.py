@@ -1,18 +1,24 @@
 import pandas as pd
 import sqlite3
 import json
+from config.configuration import Configuration
 
 
 class BaseDB:
     def __init__(self):
+        self.config = Configuration().get_config()
+
         self.diag_columns_str=['ICD9_DGNS']
         self.proc_columns_str=['ICD9_PRCDR']
         self.hcpcs_columns_str=['HCPCS']
 
-        self.diags_name='DIAG'
-        self.procs_name='PROCS'
-        self.hcpcs_name='HCPCS'
+        self.diags_name=self.config['preprocessing']['method_names']['diagnosis']
+        self.procs_name=self.config['preprocessing']['method_names']['procedure']
+        self.hcpcs_name=self.config['preprocessing']['method_names']['HSPCS']
+        self.hospitalizations_name=self.config['preprocessing']['method_names']['hospitalizations']
 
+        with open("Data/db_columns_names.json", "r") as f:
+            self.column_names_dict = json.load(f)
 
     def create_table(self, df, claim_columns, mehod_name,method_columns ):
         concat_df = pd.DataFrame(columns=[f'{mehod_name}_CODE']  + claim_columns)
@@ -83,21 +89,19 @@ class InpatientDB(BaseDB):
 
 
     def make_sql(self):
-        inpatient_claim_columns = ['DESYNPUF_ID', 'CLM_ID', 'SEGMENT', 'CLM_FROM_DT', 'CLM_THRU_DT',
-                                   'PRVDR_NUM', 'CLM_PMT_AMT', 'NCH_PRMRY_PYR_CLM_PD_AMT',
-                                   'AT_PHYSN_NPI', 'OP_PHYSN_NPI', 'OT_PHYSN_NPI', 'CLM_ADMSN_DT',
-                                   'CLM_PASS_THRU_PER_DIEM_AMT',
-                                   'NCH_BENE_IP_DDCTBL_AMT', 'NCH_BENE_PTA_COINSRNC_LBLTY_AM',
-                                   'NCH_BENE_BLOOD_DDCTBL_LBLTY_AM', 'CLM_UTLZTN_DAY_CNT',
-                                   'NCH_BENE_DSCHRG_DT', 'CLM_DRG_CD']
+        inpatient_diagnosis_columns = self.column_names_dict['inpatient_diagnosis_columns']
+        inpatient_hospitalization_columns = self.column_names_dict['inpatient_hospitalization_columns']
 
-        diags = self.create_table(self.dataframe, inpatient_claim_columns, self.diags_name, self.diag_columns_str)
-        procs = self.create_table(self.dataframe, inpatient_claim_columns, self.procs_name, self.proc_columns_str)
-        hcpcs = self.create_table(self.dataframe, inpatient_claim_columns, self.hcpcs_name, self.hcpcs_columns_str)
 
-        self.create_sql(diags, f'{self.table_name}_{self.diags_name}_TABLE')
-        self.create_sql(procs, f'{self.table_name}_{self.procs_name}_TABLE')
-        self.create_sql(hcpcs, f'{self.table_name}_{self.hcpcs_name}_TABLE')
+        diags = self.create_table(self.dataframe, inpatient_diagnosis_columns, self.diags_name, self.diag_columns_str)
+        procs = self.create_table(self.dataframe, inpatient_diagnosis_columns, self.procs_name, self.proc_columns_str)
+        hcpcs = self.create_table(self.dataframe, inpatient_diagnosis_columns, self.hcpcs_name, self.hcpcs_columns_str)
+        hospitalizations=self.dataframe[inpatient_hospitalization_columns]
+
+        # self.create_sql(diags, f'{self.table_name}_{self.diags_name}_TABLE')
+        # self.create_sql(procs, f'{self.table_name}_{self.procs_name}_TABLE')
+        # self.create_sql(hcpcs, f'{self.table_name}_{self.hcpcs_name}_TABLE')
+        self.create_sql(hospitalizations, f'{self.table_name}_{self.hospitalizations_name}_TABLE')
 
 
 class CarrierDB(BaseDB):
@@ -109,9 +113,7 @@ class CarrierDB(BaseDB):
 
 
     def make_sql(self):
-        carrier_claim_columns = ['DESYNPUF_ID', 'CLM_ID', 'CLM_FROM_DT', 'CLM_THRU_DT','PRF_PHYSN_NPI_1',
-       'PRF_PHYSN_NPI_2', 'PRF_PHYSN_NPI_3','LINE_NCH_PMT_AMT_1', 'LINE_NCH_PMT_AMT_2', 'LINE_NCH_PMT_AMT_3',
-       'LINE_NCH_PMT_AMT_4']
+        carrier_claim_columns = inpatient_diagnosis_columns = self.column_names_dict['carrier_claim_columns']
 
         diags1 = self.create_table(self.dataframe1, carrier_claim_columns, self.diags_name, self.diag_columns_str)
         hcpcs1 = self.create_table(self.dataframe1, carrier_claim_columns, self.hcpcs_name, self.hcpcs_columns_str)
@@ -131,7 +133,7 @@ if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    BeneficiaryDB().make_sql()
+    InpatientDB().make_sql()
 
 
     # DB_columns=self.create_DB_columns(diags)

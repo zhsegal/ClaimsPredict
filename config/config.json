@@ -14,7 +14,9 @@
     "method_names": {
       "diagnosis": "DIAG",
       "procedure": "PROCS",
-      "HSPCS": "HCPCS"
+      "HSPCS": "HCPCS",
+      "hospitalizations": "HOSPITALIZATIONS"
+
     }
   }
 }

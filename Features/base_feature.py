@@ -13,8 +13,12 @@ class BaseFeature():
         self.icd9_table_description_col = 'shortdesc'
         self.icd9_table = pd.read_csv(self.config['preprocessing']['tables']['ICD9'])
         self.item_col_name='item'
-        self.diag_features_prefix='DIAG'
+
         self.train_end_time=datetime.strptime(self.config['experiment']['experiment'], '%Y:%m:%d')
+        self.diags_name = self.config['preprocessing']['method_names']['diagnosis']
+        self.procs_name = self.config['preprocessing']['method_names']['procedure']
+        self.hcpcs_name = self.config['preprocessing']['method_names']['HSPCS']
+        self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
 
     def calculate_feature(self, ids):
 
@@ -63,12 +67,16 @@ class BaseFeature():
                                    right_on=feature_col_name, how='left')
         return df_with_symptom
 
-    def count_feature (self, df):
+    def count_feature (self, df, count_column):
 
-        counts = df.groupby([self.patient_id, self.item_col_name]).size().unstack(fill_value=0)
+        counts = df.groupby([self.patient_id, count_column]).size().unstack(fill_value=0)
         return counts
 
+    def events_counter(self, df, count_on_columns):
+        return df.groupby(self.patient_id)[count_on_columns].count()
 
+    def unique_event_counter(self, df, count_on_columns):
+        return df.groupby(self.patient_id)[count_on_columns].nunique()
 
     def calculate_batch(self, ids):
         raise NotImplemented

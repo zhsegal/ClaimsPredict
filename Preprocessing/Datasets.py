@@ -51,7 +51,7 @@ class InpatientDataset(Dataset):
         self.table_type='INPATIENT'
         self.table_name=self.get_table_name(self.table_type, method)
         self.db_path=f'DB/{self.table_name}.db'
-        self.date_column='CLM_FROM_DT'
+        self.date_column='CLM_ADMSN_DT' if method==self.config['preprocessing']['method_names']['hospitalizations'] else 'CLM_FROM_DT'
 
     def get_patient_lines(self, id_list):
         data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
