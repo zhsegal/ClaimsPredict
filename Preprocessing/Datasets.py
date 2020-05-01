@@ -1,9 +1,9 @@
 import pandas as pd
 import sqlite3
 from utils.utils import parse_date_column
-from utils.utils import time_from_string_to_int
+from utils.utils import time_from_string_to_int,db_name_from_table_name
 from config.configuration import Configuration
-
+import json
 
 class Dataset:
     def __init__(self):
@@ -11,6 +11,8 @@ class Dataset:
         self.train_end_time=time_from_string_to_int(self.config['experiment']['experiment'])
         self.patient_id_columns = 'DESYNPUF_ID'
         self.beneficiary_db='DB/BENEFICIARY_TABLE.db'
+        with open("Data/datasets_metadata.json", "r") as f:
+            self.metadata = json.load(f)
 
     def get_string_from_ids (self,id_list, identifier, table_name):
         ids_quoted = ["'" + s + "'" for s in id_list]
@@ -45,13 +47,16 @@ class Dataset:
         conn.close()
         return data[self.patient_id_columns][:self.config['experiment']['patients_number']]
 
+
+
 class InpatientDataset(Dataset):
     def __init__(self, method):
         super().__init__()
-        self.table_type='INPATIENT'
+        self.table_type=self.metadata['datasets_data']['datasets_names']['inpatient']
         self.table_name=self.get_table_name(self.table_type, method)
-        self.db_path=f'DB/{self.table_name}.db'
-        self.date_column='CLM_ADMSN_DT' if method==self.config['preprocessing']['method_names']['hospitalizations'] else 'CLM_FROM_DT'
+        self.db_path=db_name_from_table_name(self.table_name)
+        self.date_column=self.metadata['datasets_data']['datasets_date_column_names']['inpatient_hospitalziations'] if method==self.config['preprocessing']['method_names']['hospitalizations'] \
+            else self.metadata['datasets_data']['datasets_date_column_names']['inpatient_claims']
 
     def get_patient_lines(self, id_list):
         data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
@@ -67,14 +72,34 @@ class InpatientDataset(Dataset):
 class OutpatientDataset(Dataset):
     def __init__(self, method):
         super().__init__()
-        self.table_type = 'OUTPATIENT'
+        self.table_type =self.metadata['datasets_data']['datasets_names']['outpatient']
         self.table_name = self.get_table_name(self.table_type, method)
-        self.db_path = f'DB/{self.table_name}.db'
-        self.date_column = 'CLM_FROM_DT'
+        self.db_path = db_name_from_table_name(self.table_name)
+        self.date_column = self.metadata['datasets_data']['datasets_date_column_names']['outpatient']
 
     def get_patient_lines(self, id_list):
         data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
-        data=data.dropna(subset=['CLM_FROM_DT'])
+        data=data.dropna(subset=[self.date_column])
+        data = parse_date_column(data, self.date_column)
+        return data
+
+    def get_patient_lines_in_train_time(self, id_list):
+        data=self.get_lines_from_sql_by_id_and_date(id_list, self.db_path, self.table_name,self.date_column,self.train_end_time )
+        data = parse_date_column(data, self.date_column)
+        return data
+
+
+class CarrierDataset(Dataset):
+    def __init__(self, method):
+        super().__init__()
+        self.table_type = self.metadata['datasets_data']['datasets_names']['carrier']
+        self.table_name = self.get_table_name(self.table_type, method)
+        self.db_path = db_name_from_table_name(self.table_name)
+        self.date_column = self.metadata['datasets_data']['datasets_date_column_names']['carrier']
+
+    def get_patient_lines(self, id_list):
+        data=self.get_lines_from_sql_by_id(id_list, self.db_path, self.table_name)
+        data=data.dropna(subset=[self.date_column])
         data = parse_date_column(data, self.date_column)
         return data
 

@@ -1,0 +1,38 @@
+{"raw_tables_columns": {
+  "inpatient_diagnosis_columns":
+  [ "DESYNPUF_ID", "CLM_ID", "SEGMENT", "CLM_FROM_DT", "CLM_THRU_DT", "PRVDR_NUM",
+     "AT_PHYSN_NPI", "OP_PHYSN_NPI", "OT_PHYSN_NPI"],
+  "inpatient_cost_columns":
+  ["DESYNPUF_ID", "CLM_ID","CLM_FROM_DT","CLM_PMT_AMT","NCH_PRMRY_PYR_CLM_PD_AMT","CLM_PASS_THRU_PER_DIEM_AMT",
+  "NCH_BENE_IP_DDCTBL_AMT","NCH_BENE_PTA_COINSRNC_LBLTY_AM","NCH_BENE_BLOOD_DDCTBL_LBLTY_AM"],
+  "inpatient_hospitalization_columns":
+  ["DESYNPUF_ID", "CLM_ID","PRVDR_NUM","CLM_ADMSN_DT", "ADMTNG_ICD9_DGNS_CD",
+    "NCH_BENE_DSCHRG_DT", "CLM_DRG_CD"],
+  "outpatient_diagnosis_columns":
+  ["DESYNPUF_ID", "CLM_ID", "SEGMENT", "CLM_FROM_DT", "CLM_THRU_DT", "PRVDR_NUM",
+                                   "AT_PHYSN_NPI", "OP_PHYSN_NPI", "OT_PHYSN_NPI"],
+  "outpatient_cost_columns":
+  ["DESYNPUF_ID", "CLM_ID","CLM_FROM_DT","CLM_PMT_AMT","NCH_PRMRY_PYR_CLM_PD_AMT","NCH_BENE_BLOOD_DDCTBL_LBLTY_AM","NCH_BENE_PTB_DDCTBL_AMT",
+  "NCH_BENE_PTB_COINSRNC_AMT"],
+
+  "carrier_method_columns":
+  ["DESYNPUF_ID", "CLM_ID", "CLM_FROM_DT", "CLM_THRU_DT", "PRF_PHYSN_NPI_1","PRF_PHYSN_NPI_2", "PRF_PHYSN_NPI_3",
+    "LINE_NCH_PMT_AMT_1", "LINE_NCH_PMT_AMT_2", "LINE_NCH_PMT_AMT_3","LINE_NCH_PMT_AMT_4"],
+
+  "carrier_cost_columns":
+  ["DESYNPUF_ID", "CLM_ID", "CLM_FROM_DT"]
+},
+  "datasets_data": {
+    "datasets_names": {
+      "outpatient": "OUTPATIENT",
+      "carrier": "CARRIER",
+      "inpatient": "INPATIENT"
+    },
+    "datasets_date_column_names":
+    {"carrier": "CLM_FROM_DT",
+    "outpatient": "CLM_FROM_DT",
+    "inpatient_claims":"CLM_FROM_DT",
+    "inpatient_hospitalziations": "CLM_ADMSN_DT"}
+  }
+
+}

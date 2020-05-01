@@ -27,7 +27,7 @@ class DiagnosisFeatures(BaseFeature):
 
         counts=self.count_feature(inpat_diags_with_symptom_name,self.item_col_name)
         zero_one_features=self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
-        trends=Trends().get_trends(outpat_diags_with_symptom_name, self.diags_dict[self.mapping_prefix], self.item_col_name, self.patient_id, self.date_column_name)
+        trends=Trends().get_trends(outpat_diags_with_symptom_name, self.item_col_name, self.patient_id, self.date_column_name)
         return counts
 
 

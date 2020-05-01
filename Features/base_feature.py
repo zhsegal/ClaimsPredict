@@ -2,11 +2,15 @@ import multiprocessing as mp
 from config.configuration import Configuration
 import pandas as pd
 from datetime import datetime
+import time
+from tqdm import tqdm
 
 class BaseFeature():
     def __init__(self):
         self.config=Configuration().get_config()
-        self.batch_size=self.config['multiprocessing']['batch_size']
+        #self.batch_size=self.config['multiprocessing']['batch_size']
+        self.batch_size=50
+
         self.diagnosis_prefix=self.config['preprocessing']['method_names']['diagnosis']
         self.diagnosis_column=f'{self.diagnosis_prefix}_CODE'
         self.patient_id='DESYNPUF_ID'
@@ -20,20 +24,25 @@ class BaseFeature():
         self.hcpcs_name = self.config['preprocessing']['method_names']['HSPCS']
         self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
 
+
     def calculate_feature(self, ids):
 
         added_features = self.run_multiprocess(ids)
         return added_features
 
-    def run_multiprocess(self, ids):
+    def run_multiprocess(self, patient_ids):
         results_df = pd.DataFrame()
         pool=mp.Pool(processes=self.config['multiprocessing']['process_number'])
 
         results=[]
 
-        for ids in (self.chunkizer(ids,self.batch_size)):
-            result=pool.apply_async(func=self.calculate_batch, args=(ids,))
-            results.append(result)
+        batch_number=len(range(0, len(patient_ids), self.batch_size))
+        with tqdm(total=batch_number) as pbar:
+            for ids in (self.chunkizer(patient_ids,self.batch_size)):
+                result=pool.apply_async(func=self.calculate_batch, args=(ids,))
+                time.sleep(1)
+                results.append(result)
+                pbar.update()
 
         pool.close()
         pool.join()

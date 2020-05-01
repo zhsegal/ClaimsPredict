@@ -1,11 +1,11 @@
 {
   "experiment": {
-    "patients_number": 500,
+    "patients_number": 5000,
     "experiment": "2009:12:31"
   },
   "multiprocessing": {
     "process_number": 8,
-    "batch_size": 5
+    "batch_size": 1000
   },
   "preprocessing": {
     "tables": {
@@ -15,8 +15,14 @@
       "diagnosis": "DIAG",
       "procedure": "PROCS",
       "HSPCS": "HCPCS",
-      "hospitalizations": "HOSPITALIZATIONS"
-
+      "hospitalizations": "HOSPITALIZATIONS",
+      "deductible_costs": "COSTS_DEDUCTIBLE",
+      "NCH_costs": "COSTS_NCH",
+      "primary_care_costs": "COSTS_PRIMARY_CARE",
+      "coinsurance_costs": "COSTS_COINSURANCE",
+      "allowd_chargae": "COSTS_ALLOWED_CHARGE",
+      "inpatient_costs": "COSTS_INPATIENT",
+      "outpatient_costs": "COSTS_OUTPATIENT"
     }
   }
 }
