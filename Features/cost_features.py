@@ -1,6 +1,6 @@
 import pandas as pd
 from Features.base_feature import BaseFeature
-from Preprocessing.Datasets import InpatientDataset, OutpatientDataset, CarrierDataset
+from Preprocessing.Datasets import InpatientDataset, OutpatientDataset, CarrierDataset,BeneficiaryDataset
 import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
@@ -17,18 +17,17 @@ class CostFeatures(BaseFeature):
         self.allowed_charge_costs_name = self.config['preprocessing']['method_names']['allowd_chargae']
         self.inpatient_costs_name = self.config['preprocessing']['method_names']['inpatient_costs']
         self.outpatient_costs_name = self.config['preprocessing']['method_names']['outpatient_costs']
-
+        self.year_08_str = '08'
         self.cost_col_string = 'AM'
 
     def calculate_batch(self, ids):
         results = pd.DataFrame({self.patient_id: ids})
 
-        # carrier_primary_care_costs = CarrierDataset(self.primary_care_costs_name).get_patient_lines_in_train_time(ids)
-        # carrier_nch_costs = CarrierDataset(self.NCH_costs_columns_name).get_patient_lines_in_train_time(ids)
-        # carrier_deductable_costs = CarrierDataset(self.deductable_costs_name).get_patient_lines_in_train_time(ids)
-        # carrier_coinsurance_costs = CarrierDataset(self.coinsurance_costs_name).get_patient_lines_in_train_time(ids)
-        # carrier_allowed_charge_costs = CarrierDataset(self.allowed_charge_costs_name).get_patient_lines_in_train_time(
-        #     ids)
+        carrier_primary_care_costs = CarrierDataset(self.primary_care_costs_name).get_patient_lines_in_train_time(ids)
+        carrier_nch_costs = CarrierDataset(self.NCH_costs_columns_name).get_patient_lines_in_train_time(ids)
+        carrier_deductable_costs = CarrierDataset(self.deductable_costs_name).get_patient_lines_in_train_time(ids)
+        carrier_coinsurance_costs = CarrierDataset(self.coinsurance_costs_name).get_patient_lines_in_train_time(ids)
+        carrier_allowed_charge_costs = CarrierDataset(self.allowed_charge_costs_name).get_patient_lines_in_train_time(ids)
 
         inpatient_costs = InpatientDataset(self.inpatient_costs_name).get_patient_lines_in_train_time(ids)
         inpatient_columns = [col for col in inpatient_costs.columns if self.cost_col_string in col]
@@ -44,7 +43,12 @@ class CostFeatures(BaseFeature):
         inpatient_sum = inpatient_costs.groupby(self.patient_id)[inpatient_columns].sum().reset_index()
         outpatient_sum = outpatient_costs.groupby(self.patient_id)[outpatient_columns].sum().reset_index()
 
-        return cost_sum
+        total=BeneficiaryDataset(self.year_08_str).get_patient_costs_lines(ids)
+        total9=BeneficiaryDataset('09').get_patient_costs_lines(ids)
+        total10=BeneficiaryDataset('10').get_patient_costs_lines(ids)
+
+        #todo add medication costs
+        return inpatient_sum
 
     def sum_by_patients_for_dfs(self, base_df, dfs):
         for df in dfs:

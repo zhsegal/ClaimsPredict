@@ -20,19 +20,39 @@
     "LINE_NCH_PMT_AMT_1", "LINE_NCH_PMT_AMT_2", "LINE_NCH_PMT_AMT_3","LINE_NCH_PMT_AMT_4"],
 
   "carrier_cost_columns":
-  ["DESYNPUF_ID", "CLM_ID", "CLM_FROM_DT"]
+  ["DESYNPUF_ID", "CLM_ID", "CLM_FROM_DT"],
+  "beneficiary_cat_columns":
+  ["BENE_SEX_IDENT_CD",
+    "SP_ALZHDMTA", "SP_CHF", "SP_CHRNKIDN",
+       "SP_CNCR", "SP_COPD", "SP_DEPRESSN", "SP_DIABETES", "SP_ISCHMCHT",   "SP_OSTEOPRS", "SP_RA_OA", "SP_STRKETIA",
+    "BENE_ESRD_IND"
+  ],
+  "beneficiary_demographics_columns":
+          ["BENE_BIRTH_DT",
+            "BENE_SEX_IDENT_CD", "BENE_RACE_CD", "BENE_ESRD_IND",
+            "SP_ALZHDMTA", "SP_CHF", "SP_CHRNKIDN",
+       "SP_CNCR", "SP_COPD", "SP_DEPRESSN", "SP_DIABETES", "SP_ISCHMCHT",  "SP_OSTEOPRS", "SP_RA_OA", "SP_STRKETIA"
+          ],
+  "beneficiary_cost_columns": [
+    "MEDREIMB_IP",  "BENRES_IP", "PPPYMT_IP", "MEDREIMB_OP", "BENRES_OP", "PPPYMT_OP",
+       "MEDREIMB_CAR", "BENRES_CAR", "PPPYMT_CAR"
+  ]
 },
   "datasets_data": {
     "datasets_names": {
       "outpatient": "OUTPATIENT",
       "carrier": "CARRIER",
-      "inpatient": "INPATIENT"
+      "inpatient": "INPATIENT",
+      "beneficiary": "BENEFICIARY",
+      "medications": "MEDICATIONS"
     },
     "datasets_date_column_names":
     {"carrier": "CLM_FROM_DT",
     "outpatient": "CLM_FROM_DT",
     "inpatient_claims":"CLM_FROM_DT",
-    "inpatient_hospitalziations": "CLM_ADMSN_DT"}
+    "inpatient_hospitalziations": "CLM_ADMSN_DT",
+    "beneficiary":"BENE_BIRTH_DT",
+    "medications": "SRVC_DT"}
   }
 
 }

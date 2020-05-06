@@ -1,0 +1,10 @@
+{
+  "medication_mapping": {
+    "Dexamethasone": [
+      "Dexamethasone"
+    ],
+    "clonazepan": [
+      "clonazepan, Clonazepan"
+    ]
+  }
+}

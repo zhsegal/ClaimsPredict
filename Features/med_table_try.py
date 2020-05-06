@@ -16,7 +16,15 @@ class MedTableCreation():
 
     def calculate_batch(self, ndc):
         ndc=[self.zero_pad(ndc) for ndc in ndc]
-        rxcui_tuples=[get_rxcui_from_ndc(ndc) for ndc in ndc]
+
+        while True:
+            try:
+                rxcui_tuples=[get_rxcui_from_ndc(ndc) for ndc in ndc]
+                break
+            except:
+                continue
+
+
         results=pd.DataFrame({'ndc':ndc,'rxcui_num':[tuple[0] for tuple in rxcui_tuples],'rxcui_description':[tuple[1] for tuple in rxcui_tuples]})
         return results
 
@@ -41,9 +49,9 @@ if __name__ == '__main__':
 
     data= pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
     print ('csv_read')
-    ndcs=data.PROD_SRVC_ID.unique()[99401:]
+    ndcs=data.PROD_SRVC_ID.unique()[280701:]
 
     for i,ndc in enumerate(chunkizer(ndcs, 100)):
         results=MedTableCreation().calculate_batch(ndc)
-        results.to_csv(f'cache/ndc_map_{(i+995)*100}.csv')
-        print (f'finished_{(i+995 )*100}_chunk')
+        results.to_csv(f'cache/ndc_map_{(i+2808)*100}.csv')
+        print (f'finished_{(i+2808 )*100}_chunk')

@@ -4,6 +4,7 @@ import requests
 import json
 from  xml.etree import ElementTree
 from functools import reduce
+import numpy as np
 
 def get_rxcui_from_ndc(ndc):
 
@@ -20,9 +21,21 @@ def parse_date_column (df, date_columns):
 def time_from_string_to_int(string_time):
     return int(string_time.replace(":",""))
 
+def time_from_sting(string_time):
+    return datetime.strptime(string_time,'%Y:%m:%d')
+
 def db_name_from_table_name(table_name):
     return f'DB/{table_name}.db'
 
 def merge_dfs_on_column(dfs, column):
     merged=reduce(lambda left, right: pd.merge(left, right, on=column, how='outer'),dfs)
     return merged
+
+def string_to_int_else_nan(columns):
+    def intitizer(string):
+        try:
+            return(float(string))
+        except:
+            return np.nan
+
+    return  [intitizer(string) for string in columns ]

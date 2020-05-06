@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import datetime
 import time
 from tqdm import tqdm
+from utils.utils import time_from_sting,string_to_int_else_nan
+import json
 
 class BaseFeature():
     def __init__(self):
@@ -16,13 +18,16 @@ class BaseFeature():
         self.patient_id='DESYNPUF_ID'
         self.icd9_table_description_col = 'shortdesc'
         self.icd9_table = pd.read_csv(self.config['preprocessing']['tables']['ICD9'])
+        self.icd_proc_table=pd.read_csv(self.config['preprocessing']['tables']['ICD9_PROC'])
         self.item_col_name='item'
 
-        self.train_end_time=datetime.strptime(self.config['experiment']['experiment'], '%Y:%m:%d')
+        self.train_end_time=time_from_sting((self.config['experiment']['experiment']))
         self.diags_name = self.config['preprocessing']['method_names']['diagnosis']
         self.procs_name = self.config['preprocessing']['method_names']['procedure']
         self.hcpcs_name = self.config['preprocessing']['method_names']['HSPCS']
         self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
+        with open("Data/datasets_metadata.json", "r") as f:
+            self.metadata = json.load(f)
 
 
     def calculate_feature(self, ids):
@@ -74,6 +79,14 @@ class BaseFeature():
         df = df[df[self.diagnosis_column].isin(code_symptom_map.dgns_cd.values)]
         df_with_symptom = df.merge(code_symptom_map[[feature_col_name, self.item_col_name]], left_on=self.diagnosis_column,
                                    right_on=feature_col_name, how='left')
+        return df_with_symptom
+
+    def merge_proc_with_symptom_name(self, df, items_dict, feature_col_name):
+        code_symptom_map = self.create_code_symptom_mapping(self.icd_proc_table, items_dict,
+                                                            self.icd9_table_description_col)
+        df = df[df['PROCS_CODE'].isin(code_symptom_map.prcdrcd.values)]
+        df_with_symptom = df.merge(code_symptom_map[['prcdrcd', self.item_col_name]], left_on='PROCS_CODE',
+                                   right_on='prcdrcd', how='left')
         return df_with_symptom
 
     def count_feature (self, df, count_column):

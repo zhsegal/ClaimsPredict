@@ -107,10 +107,18 @@ class BeneficiaryDB(BaseDB):
     def __init__(self):
         super().__init__()
         self.table_name='BENEFICIARY'
-        self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv')
+        self.dataframe_08=pd.read_csv('Data/Raw_Data/DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv')
+
+        self.dataframe_09 = pd.read_csv('Data/Raw_Data/DE1_0_2009_Beneficiary_Summary_File_Sample_1.csv')
+        self.dataframe_10 = pd.read_csv('Data/Raw_Data/DE1_0_2010_Beneficiary_Summary_File_Sample_1.csv')
 
     def make_sql(self):
-        self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
+
+        self.create_sql(self.dataframe_08, f'{self.table_name}_08_TABLE')
+        self.create_sql(self.dataframe_09, f'{self.table_name}_09_TABLE')
+        self.create_sql(self.dataframe_10, f'{self.table_name}_10_TABLE')
+
+        return None
 
 class OutpatientDB(BaseDB):
     def __init__(self):
@@ -172,42 +180,55 @@ class CarrierDB(BaseDB):
         carrier_cost_columns = self.metadata['raw_tables_columns']['carrier_cost_columns']
 
         # diags1 = self.create_table(self.dataframe1, carrier_method_columns, self.diags_name, self.diag_columns_str)
+        procs1 = self.create_table(self.dataframe1, carrier_method_columns, self.procs_name, self.proc_columns_str)
         # hcpcs1 = self.create_table(self.dataframe1, carrier_method_columns, self.hcpcs_name, self.hcpcs_columns_str)
         #
         # diags2 = self.create_table(self.dataframe2, carrier_method_columns, self.diags_name, self.diag_columns_str)
+        procs2 = self.create_table(self.dataframe2, carrier_method_columns, self.procs_name, self.proc_columns_str)
         # hcpcs2 = self.create_table(self.dataframe2, carrier_method_columns, self.hcpcs_name, self.hcpcs_columns_str)
-
-        deductible1 = self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.deductable_costs_name, self.deductable_costs_columns_srt,0)
-        deductible2 = self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.deductable_costs_name, self.deductable_costs_columns_srt,0)
-
-        nch1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.NCH_costs_columns_name, self.NCH_costs_columns_str,0)
-        nch2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.NCH_costs_columns_name, self.NCH_costs_columns_str,0)
-
-        pc1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.primary_care_costs_name, self.primary_care_costs_columns_srt,0)
-        pc2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.primary_care_costs_name, self.primary_care_costs_columns_srt,0)
-
-        coinsur1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.coinsurance_costs_name, self.coinsurance_costs_columns_srt,0)
-        coinsur2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.coinsurance_costs_name, self.coinsurance_costs_columns_srt,0)
-
-        allowed1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.allowed_charge_costs_name, self.allowed_charge_costs_columns_srt,0)
-        allowed2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.allowed_charge_costs_name, self.allowed_charge_costs_columns_srt,0)
+        #
+        # deductible1 = self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.deductable_costs_name, self.deductable_costs_columns_srt,0)
+        # deductible2 = self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.deductable_costs_name, self.deductable_costs_columns_srt,0)
+        #
+        # nch1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.NCH_costs_columns_name, self.NCH_costs_columns_str,0)
+        # nch2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.NCH_costs_columns_name, self.NCH_costs_columns_str,0)
+        #
+        # pc1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.primary_care_costs_name, self.primary_care_costs_columns_srt,0)
+        # pc2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.primary_care_costs_name, self.primary_care_costs_columns_srt,0)
+        #
+        # coinsur1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.coinsurance_costs_name, self.coinsurance_costs_columns_srt,0)
+        # coinsur2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.coinsurance_costs_name, self.coinsurance_costs_columns_srt,0)
+        #
+        # allowed1=self.create_table_with_condition(self.dataframe1, carrier_cost_columns, self.allowed_charge_costs_name, self.allowed_charge_costs_columns_srt,0)
+        # allowed2=self.create_table_with_condition(self.dataframe2, carrier_cost_columns, self.allowed_charge_costs_name, self.allowed_charge_costs_columns_srt,0)
 
 
         # self.create_merged_sql(diags1, diags2, f'{self.table_name}_{self.diags_name}_TABLE')
         # self.create_merged_sql(hcpcs1, hcpcs2, f'{self.table_name}_{self.hcpcs_name}_TABLE')
-        self.create_merged_sql(deductible1, deductible2, f'{self.table_name}_{self.deductable_costs_name}_TABLE')
-        self.create_merged_sql(nch1, nch2, f'{self.table_name}_{self.NCH_costs_columns_name}_TABLE')
-        self.create_merged_sql(pc1, pc2, f'{self.table_name}_{self.primary_care_costs_name}_TABLE')
-        self.create_merged_sql(coinsur1, coinsur2, f'{self.table_name}_{self.coinsurance_costs_name}_TABLE')
-        self.create_merged_sql(allowed1, allowed2, f'{self.table_name}_{self.allowed_charge_costs_name}_TABLE')
+        self.create_merged_sql(procs1, procs2, f'{self.table_name}_{self.procs_name}_TABLE')
+        # self.create_merged_sql(deductible1, deductible2, f'{self.table_name}_{self.deductable_costs_name}_TABLE')
+        # self.create_merged_sql(nch1, nch2, f'{self.table_name}_{self.NCH_costs_columns_name}_TABLE')
+        # self.create_merged_sql(pc1, pc2, f'{self.table_name}_{self.primary_care_costs_name}_TABLE')
+        # self.create_merged_sql(coinsur1, coinsur2, f'{self.table_name}_{self.coinsurance_costs_name}_TABLE')
+        # self.create_merged_sql(allowed1, allowed2, f'{self.table_name}_{self.allowed_charge_costs_name}_TABLE')
 
 
         return None
+
+class MedicationsDB(BaseDB):
+    def __init__(self):
+            super().__init__()
+            self.table_name = self.metadata['datasets_data']['datasets_names']['medications']
+            self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
+
+    def make_sql(self):
+            self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
+            return None
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    CarrierDB().make_sql()
+    MedicationsDB().make_sql()
 
 

@@ -9,7 +9,8 @@
   },
   "preprocessing": {
     "tables": {
-      "ICD9": "Data/icd9dx2010.csv"
+      "ICD9": "Data/icd9dx2010.csv",
+      "ICD9_PROC": "Data/icd9sg2010.csv"
     },
     "method_names": {
       "diagnosis": "DIAG",
