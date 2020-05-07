@@ -44,7 +44,7 @@ class Trends(BaseFeature):
 
         results = df.groupby([patient_column, variable_column_name]).agg(
             {date_columns: [self.std, self.trend]}).reset_index()
-        results = results.set_index(['DESYNPUF_ID', 'item']).stack().unstack([1, 2]).droplevel(0, axis=1)
+        results = results.set_index([self.patient_id, self.method_subgrouping_column_name]).stack().unstack([1, 2]).droplevel(0, axis=1)
         results.columns = [' '.join(col).strip() for col in results.columns.values]
 
         return results.fillna(0)
@@ -76,3 +76,27 @@ class Trends(BaseFeature):
         dates = dates.append(mock_df)
         grouped_dates = dates.groupby(pd.Grouper(key='CLM_FROM_DT', freq='3M')).count()
         return grouped_dates[1:-1]['index']
+
+    def calculate_compliance(self, df, date_column,compliance_meds):
+        df=df[df[self.method_subgrouping_column_name].isin(compliance_meds)]
+        results = df.groupby([self.patient_id,self.method_subgrouping_column_name])[date_column, 'DAYS_SUPLY_NUM'].apply(lambda x: self.compliance(x,date_column, 'DAYS_SUPLY_NUM')).reset_index()
+        results = results.set_index([self.patient_id, 'Group']).stack().unstack(
+            [1, 2]).droplevel(1, axis=1)
+
+        return results
+
+
+    def compliance(self, df,date_column, day_count_column):
+        summed_dates=self.method_subgrouping_column_name=df.groupby(pd.Grouper(key=date_column, freq='1M'))[day_count_column].sum()
+        zero_ratio=summed_dates.isin([0]).sum()/len(summed_dates)
+        if ((zero_ratio > 0.9) or (len(summed_dates)<4)):
+            return np.nan
+        else:
+            compliant_months=[1 if self.get_range(summed_dates[i-3:i],2)[0] <= cal <= self.get_range(summed_dates[i-3:i],2)[1] else 0 for i,cal  in enumerate(summed_dates)]
+            compliant_proportion=sum(compliant_months[3:])/len(compliant_months[3:])
+            return compliant_proportion
+
+    def get_range(self, series, std_num):
+        mean=np.mean(series)
+        std=np.std(series)
+        return mean-std_num*std,mean+std_num*std

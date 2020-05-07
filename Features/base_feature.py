@@ -12,6 +12,7 @@ class BaseFeature():
         self.config=Configuration().get_config()
         #self.batch_size=self.config['multiprocessing']['batch_size']
         self.batch_size=50
+        self.method_subgrouping_column_name='Group'
 
         self.diagnosis_prefix=self.config['preprocessing']['method_names']['diagnosis']
         self.diagnosis_column=f'{self.diagnosis_prefix}_CODE'
@@ -65,7 +66,7 @@ class BaseFeature():
         for key in item_dict:
             values='|'.join(item_dict.get(key))
             item_df=table[table[item_description_columns].str.contains(values)]
-            item_df['item']=key
+            item_df[self.method_subgrouping_column_name]=key
             mapping=mapping.append(item_df)
         return mapping
 

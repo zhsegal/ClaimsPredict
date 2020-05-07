@@ -49,9 +49,9 @@ if __name__ == '__main__':
 
     data= pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
     print ('csv_read')
-    ndcs=data.PROD_SRVC_ID.unique()[288901:]
+    ndcs=data.PROD_SRVC_ID.unique()[311501:]
 
     for i,ndc in enumerate(chunkizer(ndcs, 100)):
         results=MedTableCreation().calculate_batch(ndc)
-        results.to_csv(f'cache/ndc_map_{(i+2890)*100}.csv')
-        print (f'finished_{(i+2890 )*100}_chunk')
+        results.to_csv(f'cache/ndc_map_{(i+3116)*100}.csv')
+        print (f'finished_{(i+3116 )*100}_chunk')

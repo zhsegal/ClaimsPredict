@@ -3,8 +3,12 @@
     "Dexamethasone": [
       "Dexamethasone"
     ],
-    "clonazepan": [
-      "clonazepan, Clonazepan"
-    ]
-  }
+    "Clonazepam": [
+      "clonazepan, Clonazepam"
+    ],
+    "Aspirin": ["Aspirin","aspirin"]
+  },
+  "categorical_diagnosis": ["Dexamethasone"],
+  "compliance_meds":["Aspirin", "Dexamethasone"]
+
 }

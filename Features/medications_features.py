@@ -15,6 +15,9 @@ class MedicationFeatures(BaseFeature):
         self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path).dropna().drop_duplicates()
         with open("Data/Feature_mapping/medications.json", "r") as f:
             self.medications_dict = json.load(f)
+        self.categorical_features_prefix='categorical_diagnosis'
+        self.date_column_name='SRVC_DT'
+        self.compliance_meds=self.medications_dict['compliance_meds']
 
     def calculate_batch(self, ids):
 
@@ -22,9 +25,10 @@ class MedicationFeatures(BaseFeature):
         medications_with_type=self.merge_with_rxcui(medications, self.ndc_to_rxcui, self.medications_dict[self.mapping_prefix])
         medications_with_type_and_dosage=self.get_dosage(medications_with_type)
 
-        #todo counts = self.count_feature(medications_with_type_and_dosage, self.item_col_name)
-        #todo zero_one_features = self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
-        #todo trends = Trends().get_trends(medications_with_type_and_dosage, self.item_col_name, self.patie
+        counts = self.count_feature(medications_with_type_and_dosage, self.method_subgrouping_column_name)
+        zero_one_features = self.get_zero_one_features(counts, self.medications_dict[self.categorical_features_prefix])
+        #trends = Trends().get_trends(medications_with_type_and_dosage, self.method_subgrouping_column_name, self.patient_id,self.date_column_name)
+        compliance_score=Trends().calculate_compliance(medications_with_type_and_dosage,self.date_column_name, self.compliance_meds)
 
         return medications_with_type_and_dosage
 
