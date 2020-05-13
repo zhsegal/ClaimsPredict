@@ -5,13 +5,14 @@
   },
   "multiprocessing": {
     "process_number": 8,
-    "batch_size": 1000
+    "batch_size": 500
   },
   "preprocessing": {
     "tables": {
       "ICD9": "Data/icd9dx2010.csv",
       "ICD9_PROC": "Data/icd9sg2010.csv"
     },
+
     "method_names": {
       "diagnosis": "DIAG",
       "procedure": "PROCS",
@@ -25,5 +26,13 @@
       "inpatient_costs": "COSTS_INPATIENT",
       "outpatient_costs": "COSTS_OUTPATIENT"
     }
-  }
+  },
+  "features":
+    {
+      "demographics": [true, "DemographicFeatures","demographics"],
+      "costs": [true,"CostFeatures", "costs"],
+      "diagnosis": [false, "diagnosis"],
+      "hospitalizations": [false, "hospitalizations"],
+      "procedures": [false, "procedures"]
+    }
 }

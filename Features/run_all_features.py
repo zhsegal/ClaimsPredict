@@ -1,29 +1,36 @@
 import pandas as pd
 from Features.base_feature import BaseFeature
-from Preprocessing.Datasets import InpatientDataset, OutpatientDataset, CarrierDataset,BeneficiaryDataset
+from Features.demographic_features import DemographicFeatures
+from Features.cost_features import CostFeatures
 import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
-from utils.utils import parse_date_column
+import sys
 
-
-class CostFeatures(BaseFeature):
+class RunFeatures(BaseFeature):
     def __init__(self):
         super().__init__()
+        self.sample_size=self.config['experiment']['patients_number']
+        self.features_dict=self.config['features']
 
+    def create_dataset(self):
+        patient_ids= Dataset().get_patient_ids()[:self.sample_size]
+        all_features=pd.DataFrame({self.patient_id:patient_ids})
+        for feature in self.features_dict.keys():
+            if self.features_dict[feature][0]:
+                feature_class=self.get_class_from_string(self.features_dict[feature][1])
+                feature_df=feature_class().calculate_feature(patient_ids,self.features_dict[feature][2])
+                all_features=all_features.merge(feature_df, on=self.patient_id, how='outer')
+            else:
+                pass
+        return all_features
 
-    def create_features(self):
-        pass
+    def get_class_from_string(self,string):
+        return getattr(sys.modules[__name__], string)
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    # patient_ids=Dataset().get_patient_ids()
-
-    ids = ['00013D2EFD8E45D1', '00016F745862898F', '00052705243EA128', '0007F12A492FD25D', '000B97BA2314E971',
-           '000C7486B11E7030', '00108066CA1FACCE', '0011714C14B52EEB',
-           '0011CB1FE23E91AF', '00139C345A104F72', '0013E139F1F37264', '00157F1570C74E09']
-
-    g = CostFeatures().calculate_batch(ids)
+    g = RunFeatures().create_dataset()
     print(g)

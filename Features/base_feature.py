@@ -6,12 +6,13 @@ import time
 from tqdm import tqdm
 from utils.utils import time_from_sting,string_to_int_else_nan
 import json
+import os.path
 
 class BaseFeature():
     def __init__(self):
         self.config=Configuration().get_config()
         #self.batch_size=self.config['multiprocessing']['batch_size']
-        self.batch_size=50
+        self.batch_size=self.config['multiprocessing']['batch_size']
         self.method_subgrouping_column_name='Group'
 
         self.diagnosis_prefix=self.config['preprocessing']['method_names']['diagnosis']
@@ -29,12 +30,20 @@ class BaseFeature():
         self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
         with open("Data/datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
+        self.cache_path='cache/features'
 
+    def get_cache_path(self, ids, feature_name):
+        return self.cache_path+f'/{feature_name}_{len(ids)}_patients.csv'
 
-    def calculate_feature(self, ids):
+    def calculate_feature(self, ids, feature_name):
+        path=self.get_cache_path(ids, feature_name)
+        if os.path.isfile(path):
+            return pd.read_csv(path)
 
-        added_features = self.run_multiprocess(ids)
-        return added_features
+        else:
+            calculated_featrue = self.run_multiprocess(ids)
+            calculated_featrue.to_csv(path, index=False)
+            return calculated_featrue
 
     def run_multiprocess(self, patient_ids):
         results_df = pd.DataFrame()

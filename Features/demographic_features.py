@@ -14,7 +14,7 @@ class DemographicFeatures(BaseFeature):
     def calculate_batch(self, ids):
         results = BeneficiaryDataset(self.year_08_str).get_patient_demographics_lines(ids)
         results['AGE']=[(self.train_end_time - date).days / 365 for date in results.BENE_BIRTH_DT]
-        return None
+        return results
 
 
 

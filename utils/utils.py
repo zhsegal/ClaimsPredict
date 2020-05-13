@@ -6,6 +6,7 @@ from  xml.etree import ElementTree
 from functools import reduce
 import numpy as np
 
+
 def get_rxcui_from_ndc(ndc):
 
     url=requests.get(f"https://rxnav.nlm.nih.gov/REST/ndcstatus?ndc={ndc}")
