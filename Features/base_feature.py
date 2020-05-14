@@ -38,11 +38,14 @@ class BaseFeature():
     def calculate_feature(self, ids, feature_name):
         path=self.get_cache_path(ids, feature_name)
         if os.path.isfile(path):
+            print (f'{feature_name} feature exists, loading cache')
             return pd.read_csv(path)
 
         else:
+            print(f'{feature_name} feature doesnt exists, calculating')
             calculated_featrue = self.run_multiprocess(ids)
             calculated_featrue.to_csv(path, index=False)
+            print(f'{feature_name} feature calculated and cached')
             return calculated_featrue
 
     def run_multiprocess(self, patient_ids):
@@ -87,7 +90,7 @@ class BaseFeature():
         code_symptom_map = self.create_code_symptom_mapping(self.icd9_table, items_dict,
                                                             self.icd9_table_description_col)
         df = df[df[self.diagnosis_column].isin(code_symptom_map.dgns_cd.values)]
-        df_with_symptom = df.merge(code_symptom_map[[feature_col_name, self.item_col_name]], left_on=self.diagnosis_column,
+        df_with_symptom = df.merge(code_symptom_map[[feature_col_name, self.method_subgrouping_column_name]], left_on=self.diagnosis_column,
                                    right_on=feature_col_name, how='left')
         return df_with_symptom
 
@@ -95,7 +98,7 @@ class BaseFeature():
         code_symptom_map = self.create_code_symptom_mapping(self.icd_proc_table, items_dict,
                                                             self.icd9_table_description_col)
         df = df[df['PROCS_CODE'].isin(code_symptom_map.prcdrcd.values)]
-        df_with_symptom = df.merge(code_symptom_map[['prcdrcd', self.item_col_name]], left_on='PROCS_CODE',
+        df_with_symptom = df.merge(code_symptom_map[['prcdrcd', self.method_subgrouping_column_name]], left_on='PROCS_CODE',
                                    right_on='prcdrcd', how='left')
         return df_with_symptom
 

@@ -31,8 +31,9 @@
     {
       "demographics": [true, "DemographicFeatures","demographics"],
       "costs": [true,"CostFeatures", "costs"],
-      "diagnosis": [false, "diagnosis"],
-      "hospitalizations": [false, "hospitalizations"],
-      "procedures": [false, "procedures"]
+      "diagnosis": [true,"DiagnosisFeatures", "diagnosis"],
+      "hospitalizations": [true, "HospitalizationFeatures","hospitalizations"],
+      "procedures": [true,"ProceduresFeatures", "procedures"],
+      "medications": [true,"MedicationFeatures", "medications"]
     }
 }

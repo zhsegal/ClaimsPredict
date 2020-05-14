@@ -5,6 +5,8 @@ import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
 from utils.utils import string_to_int_else_nan
+from utils.utils import merge_dfs_on_column
+
 
 class ProceduresFeatures(BaseFeature):
     def __init__(self):
@@ -12,13 +14,16 @@ class ProceduresFeatures(BaseFeature):
         self.mapping_prefix = 'procedure_mapping'
         self.date_column_name = 'CLM_FROM_DT'
         self.method_name_columns = 'PROCS_CODE'
+        #self.categorical_features_prefix = 'categorical_diagnosis'
         with open("Data/Feature_mapping/procedures.json", "r") as f:
             self.procs_dict = json.load(f)
 
     def calculate_batch(self, ids):
+        batch_results = pd.DataFrame({self.patient_id: ids})
+
         inpat_procs = InpatientDataset(self.procs_name).get_patient_lines_in_train_time(ids)
         inpat_procs.PROCS_CODE=string_to_int_else_nan(inpat_procs.PROCS_CODE)
-        inpat_diags_with_symptom_name=self.merge_proc_with_symptom_name(inpat_procs, self.procs_dict[self.mapping_prefix], self.method_name_columns)
+        inpat_procs_with_symptom_name=self.merge_proc_with_symptom_name(inpat_procs, self.procs_dict[self.mapping_prefix], self.method_name_columns)
 
         outpat_procs = OutpatientDataset(self.procs_name).get_patient_lines_in_train_time(ids)
         outpat_procs.PROCS_CODE = string_to_int_else_nan(outpat_procs.PROCS_CODE)
@@ -32,12 +37,14 @@ class ProceduresFeatures(BaseFeature):
                                                                            self.procs_dict[self.mapping_prefix],
                                                                            self.method_name_columns)
 
-        counts = self.count_feature(inpat_diags_with_symptom_name, self.item_col_name)
-        zero_one_features = self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
-        trends = Trends().get_trends(outpat_diags_with_symptom_name, self.item_col_name, self.patient_id,
+        counts = self.count_feature(inpat_procs_with_symptom_name, self.method_subgrouping_column_name)
+        #zero_one_features = self.get_zero_one_features(counts, self.procs_dict[self.categorical_features_prefix])
+        trends = Trends().get_trends(outpat_procs_with_symptom_name, self.method_subgrouping_column_name, self.patient_id,
                                      self.date_column_name)
 
-        return None
+        result_dfs = [batch_results, counts, trends]
+        batch_results = merge_dfs_on_column(result_dfs, self.patient_id)
+        return batch_results
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)

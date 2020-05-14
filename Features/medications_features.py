@@ -6,6 +6,7 @@ from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
 import re
 import numpy as np
+from utils.utils import merge_dfs_on_column
 
 class MedicationFeatures(BaseFeature):
     def __init__(self):
@@ -21,6 +22,8 @@ class MedicationFeatures(BaseFeature):
 
     def calculate_batch(self, ids):
 
+        batch_results = pd.DataFrame({self.patient_id: ids})
+
         medications=MedicationsDataset().get_patient_lines_in_train_time(ids)
         medications_with_type=self.merge_with_rxcui(medications, self.ndc_to_rxcui, self.medications_dict[self.mapping_prefix])
         medications_with_type_and_dosage=self.get_dosage(medications_with_type)
@@ -30,7 +33,9 @@ class MedicationFeatures(BaseFeature):
         #trends = Trends().get_trends(medications_with_type_and_dosage, self.method_subgrouping_column_name, self.patient_id,self.date_column_name)
         compliance_score=Trends().calculate_compliance(medications_with_type_and_dosage,self.date_column_name, self.compliance_meds)
 
-        return medications_with_type_and_dosage
+        result_dfs = [batch_results, zero_one_features, compliance_score]
+        batch_results = merge_dfs_on_column(result_dfs, self.patient_id)
+        return batch_results
 
     def merge_with_rxcui(self, df, ndc_rxcui_mapping, rxcui_dict):
         rxcui_table=self.create_code_symptom_mapping(ndc_rxcui_mapping, rxcui_dict,'rxcui_description')

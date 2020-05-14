@@ -146,7 +146,7 @@ class InpatientDB(BaseDB):
         super().__init__()
         self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_1.csv')
         self.table_name = self.metadata['datasets_data']['datasets_names']['inpatient']
-
+        self.date_column='CLM_FROM_DT'
 
     def make_sql(self):
         inpatient_diagnosis_columns = self.metadata['raw_tables_columns']['inpatient_diagnosis_columns']
@@ -157,7 +157,8 @@ class InpatientDB(BaseDB):
         # procs = self.create_table(self.dataframe, inpatient_diagnosis_columns, self.procs_name, self.proc_columns_str)
         # hcpcs = self.create_table(self.dataframe, inpatient_diagnosis_columns, self.hcpcs_name, self.hcpcs_columns_str)
         # hospitalizations=self.dataframe[inpatient_hospitalization_columns]
-        costs=self.dataframe[inpatient_cost_columns].fillna(0)
+
+        costs=self.dataframe[inpatient_cost_columns].dropna(subset=[self.date_column]).fillna(0)
         print ('tables created')
 
         # self.create_sql(diags, f'{self.table_name}_{self.diags_name}_TABLE')
@@ -229,6 +230,6 @@ if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
     pd.set_option('display.width', 320)
 
-    MedicationsDB().make_sql()
+    InpatientDB().make_sql()
 
 

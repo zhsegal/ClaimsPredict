@@ -42,12 +42,15 @@ class Trends(BaseFeature):
 
     def get_trends(self, df, variable_column_name, patient_column, date_columns):
 
+
         results = df.groupby([patient_column, variable_column_name]).agg(
             {date_columns: [self.std, self.trend]}).reset_index()
-        results = results.set_index([self.patient_id, self.method_subgrouping_column_name]).stack().unstack([1, 2]).droplevel(0, axis=1)
-        results.columns = [' '.join(col).strip() for col in results.columns.values]
-
-        return results.fillna(0)
+        if results.empty:
+            return pd.DataFrame({self.patient_id:df[self.patient_id].unique()})
+        else:
+            results = results.set_index([self.patient_id, self.method_subgrouping_column_name]).stack().unstack([1, 2]).droplevel(0, axis=1)
+            results.columns = [' '.join(col).strip() for col in results.columns.values]
+            return results.fillna(0)
 
     def trend(self, dates):
         grouped_dates = self.get_grouped_dates(dates)
@@ -82,7 +85,7 @@ class Trends(BaseFeature):
         results = df.groupby([self.patient_id,self.method_subgrouping_column_name])[date_column, 'DAYS_SUPLY_NUM'].apply(lambda x: self.compliance(x,date_column, 'DAYS_SUPLY_NUM')).reset_index()
         results = results.set_index([self.patient_id, 'Group']).stack().unstack(
             [1, 2]).droplevel(1, axis=1)
-
+        results.columns = [col + '_compliance_score' for col in results.columns]
         return results
 
 

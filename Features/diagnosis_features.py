@@ -4,6 +4,7 @@ from Preprocessing.Datasets import InpatientDataset, OutpatientDataset
 import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
+from utils.utils import merge_dfs_on_column
 
 class DiagnosisFeatures(BaseFeature):
     def __init__(self):
@@ -18,6 +19,7 @@ class DiagnosisFeatures(BaseFeature):
 
     def calculate_batch(self, ids):
 
+        batch_results=pd.DataFrame({self.patient_id:ids})
 
         inpat_diags=InpatientDataset(self.diags_name).get_patient_lines_in_train_time(ids)
         inpat_diags_with_symptom_name=self.merge_with_symptom_name(inpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
@@ -25,10 +27,13 @@ class DiagnosisFeatures(BaseFeature):
         outpat_diags=OutpatientDataset(self.diags_name).get_patient_lines_in_train_time(ids)
         outpat_diags_with_symptom_name=self.merge_with_symptom_name(outpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
 
-        counts=self.count_feature(inpat_diags_with_symptom_name,self.item_col_name)
+        counts=self.count_feature(inpat_diags_with_symptom_name,self.method_subgrouping_column_name)
         zero_one_features=self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
-        trends=Trends().get_trends(outpat_diags_with_symptom_name, self.item_col_name, self.patient_id, self.date_column_name)
-        return counts
+        trends=Trends().get_trends(outpat_diags_with_symptom_name, self.method_subgrouping_column_name, self.patient_id, self.date_column_name)
+
+        result_dfs=[batch_results, zero_one_features, trends]
+        batch_results=merge_dfs_on_column(result_dfs, self.patient_id)
+        return batch_results
 
 
 
