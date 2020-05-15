@@ -1,0 +1,18 @@
+{
+  "fibromyalgia": {
+    "methods": [
+      "diags",
+      "procs",
+      "medications"
+    ],
+    "target_specs": {
+      "target_diagnosis": {
+        "fibromyalgia_diagnosis": [
+          "Myalgia and myositis"
+        ]
+      },
+      "target_procedures": {},
+      "target_medications": {}
+    }
+  }
+}

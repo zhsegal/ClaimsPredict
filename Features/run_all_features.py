@@ -19,7 +19,7 @@ class RunFeatures(BaseFeature):
 
     def get_features(self):
         patient_ids = Dataset().get_patient_ids()[:self.sample_size]
-        path=self.get_cache_path(patient_ids,self.all_features_suffix )
+        path=self.get_cache_path(patient_ids,self.all_features_suffix,self.features_cache_path )
         if os.path.isfile(path):
             print ('all features data frame exists, loading cache')
             return pd.read_csv(path)

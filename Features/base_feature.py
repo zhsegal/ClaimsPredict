@@ -30,15 +30,18 @@ class BaseFeature():
         self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
         with open("Data/datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
-        self.cache_path='cache/features'
+        self.features_cache_path= 'cache/features'
+        self.targets_cache_path='cache/targets'
         self.ndc_to_rxcui_path = 'Data/ndc_to_rxcui.csv'
         self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path).dropna().drop_duplicates()
 
-    def get_cache_path(self, ids, feature_name):
-        return self.cache_path+f'/{feature_name}_{len(ids)}_patients.csv'
+    def get_cache_path(self, ids, feature_name, path):
+        return f'{path}/{feature_name}_{len(ids)}_patients.csv'
+
+
 
     def calculate_feature(self, ids, feature_name):
-        path=self.get_cache_path(ids, feature_name)
+        path=self.get_cache_path(ids, feature_name,self.features_cache_path)
         if os.path.isfile(path):
             print (f'{feature_name} feature exists, loading cache')
             return pd.read_csv(path)
@@ -49,6 +52,20 @@ class BaseFeature():
             calculated_featrue.to_csv(path, index=False)
             print(f'{feature_name} feature calculated and cached')
             return calculated_featrue
+
+    def calculate_target(self, ids, target_name):
+        path=self.get_cache_path(ids, target_name,self.targets_cache_path)
+        if os.path.isfile(path):
+            print (f'target {target_name} exists, loading cache')
+            return pd.read_csv(path)
+
+        else:
+            print(f'target {target_name} doesnt exists, calculating')
+            calculated_featrue = self.run_multiprocess(ids)
+            calculated_featrue.to_csv(path, index=False)
+            print(f'target {target_name} calculated and cached')
+            return calculated_featrue
+
 
     def run_multiprocess(self, patient_ids):
         results_df = pd.DataFrame()

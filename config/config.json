@@ -37,7 +37,6 @@
       "medications": [true,"MedicationFeatures", "medications"]
     },
   "targets":
-  {"fibromyalgia": ["diags","procs","medications"]
-
+  {"fibromyalgia": [true]
   }
 }

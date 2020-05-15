@@ -7,6 +7,8 @@ import json
 class BaseTarget(BaseFeature):
     def __init__(self):
         super().__init__()
+        with open("Data/Targets/targets.json", "r") as f:
+            self.all_targets = json.load(f)
         self.date_columns='CLM_FROM_DT'
         self.mapping_prefix = 'medication_mapping'
 
