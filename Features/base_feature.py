@@ -31,6 +31,8 @@ class BaseFeature():
         with open("Data/datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
         self.cache_path='cache/features'
+        self.ndc_to_rxcui_path = 'Data/ndc_to_rxcui.csv'
+        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path).dropna().drop_duplicates()
 
     def get_cache_path(self, ids, feature_name):
         return self.cache_path+f'/{feature_name}_{len(ids)}_patients.csv'
@@ -112,6 +114,14 @@ class BaseFeature():
 
     def unique_event_counter(self, df, count_on_columns):
         return df.groupby(self.patient_id)[count_on_columns].nunique()
+
+    def merge_with_rxcui(self, df, ndc_rxcui_mapping, rxcui_dict):
+        rxcui_table=self.create_code_symptom_mapping(ndc_rxcui_mapping, rxcui_dict,'rxcui_description')
+        relevant_df = df[df['PROD_SRVC_ID'].isin(rxcui_table.ndc.values)]
+        df_with_symptom = relevant_df.merge(rxcui_table,
+                                   left_on='PROD_SRVC_ID',
+                                   right_on='ndc', how='left')
+        return df_with_symptom
 
     def calculate_batch(self, ids):
         raise NotImplemented

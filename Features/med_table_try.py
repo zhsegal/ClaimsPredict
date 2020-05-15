@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     data= pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
     print ('csv_read')
-    last=354800
+    last=385000
     ndcs=data.PROD_SRVC_ID.unique()[(last+1):]
 
     for i,ndc in enumerate(chunkizer(ndcs, 100)):

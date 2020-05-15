@@ -1,4 +1,5 @@
 {"raw_tables_columns": {
+
   "inpatient_diagnosis_columns":
   [ "DESYNPUF_ID", "CLM_ID", "SEGMENT", "CLM_FROM_DT", "CLM_THRU_DT", "PRVDR_NUM",
      "AT_PHYSN_NPI", "OP_PHYSN_NPI", "OT_PHYSN_NPI"],

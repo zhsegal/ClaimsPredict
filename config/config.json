@@ -35,5 +35,9 @@
       "hospitalizations": [true, "HospitalizationFeatures","hospitalizations"],
       "procedures": [true,"ProceduresFeatures", "procedures"],
       "medications": [true,"MedicationFeatures", "medications"]
-    }
+    },
+  "targets":
+  {"fibromyalgia": ["diags","procs","medications"]
+
+  }
 }

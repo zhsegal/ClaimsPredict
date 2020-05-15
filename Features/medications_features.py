@@ -12,8 +12,7 @@ class MedicationFeatures(BaseFeature):
     def __init__(self):
         super().__init__()
         self.mapping_prefix = 'medication_mapping'
-        self.ndc_to_rxcui_path='Data/ndc_to_rxcui.csv'
-        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path).dropna().drop_duplicates()
+
         with open("Data/Feature_mapping/medications.json", "r") as f:
             self.medications_dict = json.load(f)
         self.categorical_features_prefix='categorical_diagnosis'
@@ -37,13 +36,7 @@ class MedicationFeatures(BaseFeature):
         batch_results = merge_dfs_on_column(result_dfs, self.patient_id)
         return batch_results
 
-    def merge_with_rxcui(self, df, ndc_rxcui_mapping, rxcui_dict):
-        rxcui_table=self.create_code_symptom_mapping(ndc_rxcui_mapping, rxcui_dict,'rxcui_description')
-        relevant_df = df[df['PROD_SRVC_ID'].isin(rxcui_table.ndc.values)]
-        df_with_symptom = relevant_df.merge(rxcui_table,
-                                   left_on='PROD_SRVC_ID',
-                                   right_on='ndc', how='left')
-        return df_with_symptom
+
 
     def get_dosage(self, df):
         dosages=[(re.findall(r"[-+]?\d*\.?\d+|/d+", med)[0], self.get_dosage_unit(med)) for med in df.rxcui_description]

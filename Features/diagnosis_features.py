@@ -1,6 +1,6 @@
 import pandas as pd
 from Features.base_feature import BaseFeature
-from Preprocessing.Datasets import InpatientDataset, OutpatientDataset
+from Preprocessing.Datasets import InpatientDataset, OutpatientDataset,CarrierDataset
 import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
@@ -26,6 +26,10 @@ class DiagnosisFeatures(BaseFeature):
 
         outpat_diags=OutpatientDataset(self.diags_name).get_patient_lines_in_train_time(ids)
         outpat_diags_with_symptom_name=self.merge_with_symptom_name(outpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
+
+        carrier_diags=CarrierDataset(self.diags_name).get_patient_lines_in_train_time(ids)
+        carrier_diags_with_symptom_name=self.merge_with_symptom_name(carrier_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
+
 
         counts=self.count_feature(inpat_diags_with_symptom_name,self.method_subgrouping_column_name)
         zero_one_features=self.get_zero_one_features(counts, self.diags_dict[self.categorical_features_prefix])
