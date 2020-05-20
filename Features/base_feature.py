@@ -10,7 +10,9 @@ import os.path
 
 class BaseFeature():
     def __init__(self):
+
         self.config=Configuration().get_config()
+        self.random_state = self.config['experiment']['random_state']
         #self.batch_size=self.config['multiprocessing']['batch_size']
         self.batch_size=self.config['multiprocessing']['batch_size']
         self.method_subgrouping_column_name='Group'

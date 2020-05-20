@@ -1,7 +1,8 @@
 {
   "experiment": {
     "patients_number": 5000,
-    "experiment": "2009:12:31"
+    "experiment": "2009:12:31",
+    "random_state": 1
   },
   "multiprocessing": {
     "process_number": 8,
