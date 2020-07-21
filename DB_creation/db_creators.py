@@ -6,6 +6,9 @@ from utils.utils import get_rxcui_from_ndc,merge_dfs_on_column
 
 class BaseDB:
     def __init__(self):
+        with open("Data/datasets_metadata.json", "r") as f:
+            self.metadata = json.load(f)
+
         self.config = Configuration().get_config()
 
         self.diag_columns_str=['ICD9_DGNS']
@@ -17,9 +20,21 @@ class BaseDB:
         self.coinsurance_costs_columns_srt = ['COINSRNC_AMT']
         self.allowed_charge_costs_columns_srt = ['ALOWD_CHRG']
 
-        self.diags_name=self.config['preprocessing']['method_names']['diagnosis']
-        self.procs_name=self.config['preprocessing']['method_names']['procedure']
-        self.hcpcs_name=self.config['preprocessing']['method_names']['HSPCS']
+        self.outpatient_db_title=self.get_db_name('outpatient')
+        self.medications_db_title = self.get_db_name('medications')
+        self.beneficifary_db_title = self.get_db_name('beneficiary')
+
+        self.medicaion_db_name=f'{self.medications_db_title}_TABLE'
+        self.beneficiary_db_name_08=f'{self.beneficifary_db_title}_08_TABLE'
+        self.beneficiary_db_name_09 =f'{self.beneficifary_db_title}_09_TABLE'
+        self.beneficiary_db_name_10 =f'{self.beneficifary_db_title}_10_TABLE'
+
+
+
+        self.diags_name=self.get_method_name('diagnosis')
+        self.procs_name=self.get_method_name('procedure')
+        self.hcpcs_name=self.get_method_name('HSPCS')
+
         self.hospitalizations_name=self.config['preprocessing']['method_names']['hospitalizations']
         self.deductable_costs_name = self.config['preprocessing']['method_names']['deductible_costs']
         self.NCH_costs_columns_name = self.config['preprocessing']['method_names']['NCH_costs']
@@ -29,8 +44,9 @@ class BaseDB:
         self.inpatient_costs_name = self.config['preprocessing']['method_names']['inpatient_costs']
         self.outpatient_costs_name = self.config['preprocessing']['method_names']['outpatient_costs']
 
-        with open("Data/datasets_metadata.json", "r") as f:
-            self.metadata = json.load(f)
+
+
+
 
     def create_table(self, df, claim_columns, mehod_name,method_columns ):
         concat_df = pd.DataFrame(columns=[f'{mehod_name}_CODE']  + claim_columns)
@@ -57,13 +73,13 @@ class BaseDB:
 
         return (concat_df)
 
-    def create_sql(self, df,table_name):
+    def create_sql(self, df, db_name):
 
-        with sqlite3.connect(f'DB/{table_name}.db') as conn:
+        with sqlite3.connect(self.db_name_to_path(db_name)) as conn:
             cursor = conn.cursor()
-            df.to_sql(table_name, conn, if_exists='append', index=False)
+            df.to_sql(db_name, conn, if_exists='append', index=False)
 
-        print(f'uploaded {table_name} to db')
+        print(f'uploaded {db_name} to db')
 
     def create_merged_sql(self, df1, df2, table_name):
         with sqlite3.connect(f'DB/{table_name}.db') as conn:   # You can create a new database by changing the name within the quotes
@@ -74,11 +90,21 @@ class BaseDB:
 
         print(f'uploaded {table_name} to db')
 
+
+    def db_name_to_path(self, db_name, db_folder='DB'):
+        return f'{db_folder}/{db_name}.db'
+
+    def get_db_name(self, db_name):
+        return self.metadata['datasets_data']['datasets_names'][db_name]
+
+    def get_method_name(self, method_name):
+        return self.config['preprocessing']['method_names'][method_name]
+
+
 class MedicationsDB(BaseDB):
 
     def __init__(self):
         super().__init__()
-        self.table_name = 'MEDICATIONS'
         self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv',nrows=100)
         self.ndc_columns='PROD_SRVC_ID'
 
@@ -87,7 +113,7 @@ class MedicationsDB(BaseDB):
         rxcui_tuples=[get_rxcui_from_ndc(ndc) for ndc in self.dataframe[self.ndc_columns]]
         self.dataframe['rxcui_num']=[tuple[0] for tuple in rxcui_tuples]
         self.dataframe['rxcui_description'] = [tuple[1] for tuple in rxcui_tuples]
-        self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
+        self.create_sql(self.dataframe, self.medicaion_db_name)
         pass
 
     def zero_pad(self,ndc):
@@ -106,40 +132,37 @@ class MedicationsDB(BaseDB):
 class BeneficiaryDB(BaseDB):
     def __init__(self):
         super().__init__()
-        self.table_name='BENEFICIARY'
         self.dataframe_08=pd.read_csv('Data/Raw_Data/DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv')
-
         self.dataframe_09 = pd.read_csv('Data/Raw_Data/DE1_0_2009_Beneficiary_Summary_File_Sample_1.csv')
         self.dataframe_10 = pd.read_csv('Data/Raw_Data/DE1_0_2010_Beneficiary_Summary_File_Sample_1.csv')
 
     def make_sql(self):
 
-        self.create_sql(self.dataframe_08, f'{self.table_name}_08_TABLE')
-        self.create_sql(self.dataframe_09, f'{self.table_name}_09_TABLE')
-        self.create_sql(self.dataframe_10, f'{self.table_name}_10_TABLE')
+        self.create_sql(self.dataframe_08, self.beneficiary_db_name_08)
+        self.create_sql(self.dataframe_09, self.beneficiary_db_name_09)
+        self.create_sql(self.dataframe_10, self.beneficiary_db_name_10)
 
-        return None
+
 
 class OutpatientDB(BaseDB):
     def __init__(self):
         super().__init__()
-        self.table_name=self.metadata['datasets_data']['datasets_names']['outpatient']
         self.dataframe=pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_1.csv')
 
     def make_sql(self):
         oupatient_diagnosis_columns = self.metadata['raw_tables_columns']['outpatient_diagnosis_columns']
         oupatient_costs_columns = self.metadata['raw_tables_columns']['outpatient_cost_columns']
 
-        # diags = self.create_table(self.dataframe, oupatient_diagnosis_columns,self.diags_name,self.diag_columns_str)
-        # procs = self.create_table(self.dataframe, oupatient_diagnosis_columns,self.procs_name,self.proc_columns_str)
-        # hcpcs= self.create_table(self.dataframe, oupatient_diagnosis_columns,self.hcpcs_name,self.hcpcs_columns_str)
+        diags = self.create_table(self.dataframe, oupatient_diagnosis_columns,self.diags_name,self.diag_columns_str)
+        procs = self.create_table(self.dataframe, oupatient_diagnosis_columns,self.procs_name,self.proc_columns_str)
+        hcpcs= self.create_table(self.dataframe, oupatient_diagnosis_columns,self.hcpcs_name,self.hcpcs_columns_str)
         costs=self.dataframe[oupatient_costs_columns]
-        #
-        # self.create_sql(diags, f'{self.table_name}_{self.diags_name}_TABLE')
-        # self.create_sql(procs, f'{self.table_name}_{self.procs_name}_TABLE')
-        # self.create_sql(hcpcs, f'{self.table_name}_{self.hcpcs_name}_TABLE')
-        self.create_sql(costs, f'{self.table_name}_{self.outpatient_costs_name}_TABLE')
-        return None
+
+        self.create_sql(diags, f'{self.outpatient_db_title}_{self.diags_name}_TABLE')
+        self.create_sql(procs, f'{self.outpatient_db_title}_{self.procs_name}_TABLE')
+        self.create_sql(hcpcs, f'{self.outpatient_db_title}_{self.hcpcs_name}_TABLE')
+        self.create_sql(costs, f'{self.outpatient_db_title}_{self.outpatient_costs_name}_TABLE')
+
 
 class InpatientDB(BaseDB):
     def __init__(self):
@@ -216,15 +239,15 @@ class CarrierDB(BaseDB):
 
         return None
 
-class MedicationsDB(BaseDB):
-    def __init__(self):
-            super().__init__()
-            self.table_name = self.metadata['datasets_data']['datasets_names']['medications']
-            self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
-
-    def make_sql(self):
-            self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
-            return None
+# class MedicationsDB(BaseDB):
+#     def __init__(self):
+#             super().__init__()
+#             self.table_name = self.metadata['datasets_data']['datasets_names']['medications']
+#             self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
+#
+#     def make_sql(self):
+#             self.create_sql(self.dataframe, f'{self.table_name}_TABLE')
+#             return None
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', 81)
