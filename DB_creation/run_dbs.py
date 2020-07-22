@@ -1,4 +1,4 @@
-from DB_creation.db_creators import MedicationsDB, BaseDB,BeneficiaryDB,OutpatientDB
+from DB_creation.db_creators import MedicationsDB, BaseDB,BeneficiaryDB,OutpatientDB,InpatientDB,CarrierDB
 import os
 
 class DBRunner(BaseDB):
@@ -10,7 +10,9 @@ class DBRunner(BaseDB):
         self.create_medication_db()
         self.create_beneficiary_db()
         self.create_outpatient_db()
-        pass
+        self.create_inpatient_db()
+        self.create_carrier_db()
+        print ('all dbs created')
 
     def create_medication_db(self):
         if os.path.exists(self.db_name_to_path(self.medicaion_db_name)):
@@ -29,7 +31,37 @@ class DBRunner(BaseDB):
             print('beneficiary db calculted')
 
     def create_outpatient_db(self):
-        OutpatientDB().make_sql()
+        for method in ['diagnosis','procedure','hcpcs','costs']:
+            method_name = self.get_method_name(method)
+            table_name=self.outpatient_db_title
+            db_table_name=self.get_db_table_name(table_name, method_name)
+            if os.path.exists(self.db_name_to_path(db_table_name)):
+                print(f'table {db_table_name} exists')
+            else:
+                OutpatientDB().make_sql(method)
+
+
+    def create_inpatient_db(self):
+        for method in ['diagnosis','procedure','hcpcs','costs','hospitalizations']:
+            method_name = self.get_method_name(method)
+            table_name=self.inpatient_db_title
+            db_table_name=self.get_db_table_name(table_name, method_name)
+            if os.path.exists(self.db_name_to_path(db_table_name)):
+                print(f'table {db_table_name} exists')
+            else:
+                InpatientDB().make_sql(method)
+
+    def create_carrier_db(self):
+        for method in ['diagnosis','procedure','hcpcs','deductible_costs','NCH_costs','primary_care_costs',
+                       'coinsurance_costs','allowd_chargae']:
+            method_name = self.get_method_name(method)
+            table_name = self.carrier_db_title
+            db_table_name = self.get_db_table_name(table_name, method_name)
+            if os.path.exists(self.db_name_to_path(db_table_name)):
+                print(f'table {db_table_name} exists')
+            else:
+                CarrierDB().make_sql(method)
+
 
 
 if __name__ == '__main__':

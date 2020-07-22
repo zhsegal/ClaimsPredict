@@ -17,7 +17,8 @@
     "method_names": {
       "diagnosis": "DIAG",
       "procedure": "PROCS",
-      "HSPCS": "HCPCS",
+      "hcpcs": "HCPCS",
+      "costs": "COSTS",
       "hospitalizations": "HOSPITALIZATIONS",
       "deductible_costs": "COSTS_DEDUCTIBLE",
       "NCH_costs": "COSTS_NCH",
