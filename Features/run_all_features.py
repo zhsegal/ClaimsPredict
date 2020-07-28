@@ -25,13 +25,13 @@ class RunFeatures(BaseFeature):
             return pd.read_csv(path)
         else:
             print('allfeatures doesnt exists, calculating')
-            all_features = self.create_dataset(patient_ids)
+            all_features = self.create_featrues_dataset(patient_ids)
             all_features.to_csv(path, index=False)
             print('all feature calculated and cached')
             return all_features
 
 
-    def create_dataset(self, patient_ids):
+    def create_featrues_dataset(self, patient_ids):
 
         all_features=pd.DataFrame({self.patient_id:patient_ids})
         for feature in self.features_dict.keys():

@@ -7,6 +7,7 @@ from tqdm import tqdm
 from utils.utils import time_from_sting,string_to_int_else_nan
 import json
 import os.path
+import pathlib
 
 class BaseFeature():
     def __init__(self):
@@ -28,9 +29,9 @@ class BaseFeature():
         self.train_end_time=time_from_sting((self.config['experiment']['experiment']))
         self.diags_name = self.config['preprocessing']['method_names']['diagnosis']
         self.procs_name = self.config['preprocessing']['method_names']['procedure']
-        self.hcpcs_name = self.config['preprocessing']['method_names']['HSPCS']
+        self.hcpcs_name = self.config['preprocessing']['method_names']['hcpcs']
         self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
-        with open("Data/datasets_metadata.json", "r") as f:
+        with open("config\datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
         self.features_cache_path= 'cache/features'
         self.targets_cache_path='cache/targets'
@@ -71,22 +72,18 @@ class BaseFeature():
 
     def run_multiprocess(self, patient_ids):
         results_df = pd.DataFrame()
-        pool=mp.Pool(processes=self.config['multiprocessing']['process_number'])
+        results = []
+        batch_number = len(range(0, len(patient_ids), self.batch_size))
+        with mp.Pool(processes=self.config['multiprocessing']['process_number']) as p:
 
-        results=[]
+            r=list(tqdm(p.imap(self.calculate_batch, iterable=self.chunkizer(patient_ids, self.batch_size)),total=batch_number))
+            p.close()
+            p.join()
 
-        batch_number=len(range(0, len(patient_ids), self.batch_size))
-        with tqdm(total=batch_number) as pbar:
-            for ids in (self.chunkizer(patient_ids,self.batch_size)):
-                result=pool.apply_async(func=self.calculate_batch, args=(ids,))
-                time.sleep(1)
-                results.append(result)
-                pbar.update()
-
-        pool.close()
-        pool.join()
-        for result in results: results_df = results_df.append(result.get())
+        for result in r: results_df = results_df.append(result, ignore_index=True)
         return results_df
+
+
 
 
     def chunkizer(self, ids,size):

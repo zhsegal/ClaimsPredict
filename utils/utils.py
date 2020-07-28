@@ -7,6 +7,11 @@ from functools import reduce
 import numpy as np
 
 
+def get_db_name(db_name):
+    with open("config\datasets_metadata.json", "r") as f:
+        metadata = json.load(f)
+    return metadata['datasets_data']['datasets_names'][db_name]
+
 def get_rxcui_from_ndc(ndc):
 
     url=requests.get(f"https://rxnav.nlm.nih.gov/REST/ndcstatus?ndc={ndc}")
@@ -16,7 +21,7 @@ def get_rxcui_from_ndc(ndc):
     return(rxcui_num[0],rxcui_text[0])
 
 def parse_date_column (df, date_columns):
-    df[date_columns] = [datetime.strptime(date, '%Y%m%d') for date in df[date_columns].astype(int).astype(str)]
+    df[date_columns] = [datetime.strptime(date, '%Y%m%d') for date in df[date_columns].asty=pe(int).astype(str)]
     return df
 
 def time_from_string_to_int(string_time):

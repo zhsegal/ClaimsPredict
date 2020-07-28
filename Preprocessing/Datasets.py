@@ -4,16 +4,19 @@ from utils.utils import parse_date_column
 from utils.utils import time_from_string_to_int,db_name_from_table_name,time_from_sting
 from config.configuration import Configuration
 import json
+from utils.utils import get_db_name
+from DB_creation.db_creators import BaseDB
 
-class Dataset:
+class Dataset(BaseDB):
     def __init__(self):
+        super().__init__()
         self.config = Configuration().get_config()
         self.train_end_time_int=time_from_string_to_int(self.config['experiment']['experiment'])
         self.train_end_time=time_from_sting((self.config['experiment']['experiment']))
         self.patient_id_columns = 'DESYNPUF_ID'
         self.beneficiary_db='DB/BENEFICIARY_08_TABLE.db'
         self.patient_id = 'DESYNPUF_ID'
-        with open("Data/datasets_metadata.json", "r") as f:
+        with open("config\datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
 
     def get_string_from_ids (self,id_list, identifier, table_name):
@@ -70,10 +73,12 @@ class Dataset:
 class InpatientDataset(Dataset):
     def __init__(self, method):
         super().__init__()
-        self.table_type=self.metadata['datasets_data']['datasets_names']['inpatient']
-        self.table_name=self.get_table_with_mehod_name(self.table_type, method)
+
+        self.table_type =self.get_db_name('inpatient')
+        self.method=self.get_method_name(method)
+        self.table_name=self.get_db_table_name(self.inpatient_db_title, self.method)
         self.db_path=db_name_from_table_name(self.table_name)
-        self.date_column=self.metadata['datasets_data']['datasets_date_column_names']['inpatient_hospitalziations'] if method==self.config['preprocessing']['method_names']['hospitalizations'] \
+        self.date_column=self.metadata['datasets_data']['datasets_date_column_names']['inpatient_hospitalziations'] if method==self.get_method_name('hospitalizations') \
             else self.metadata['datasets_data']['datasets_date_column_names']['inpatient_claims']
 
     def get_patient_lines(self, id_list):
@@ -94,8 +99,9 @@ class InpatientDataset(Dataset):
 class OutpatientDataset(Dataset):
     def __init__(self, method):
         super().__init__()
-        self.table_type =self.metadata['datasets_data']['datasets_names']['outpatient']
-        self.table_name = self.get_table_with_mehod_name(self.table_type, method)
+        self.table_type = self.get_db_name('outpatient')
+        self.method = self.get_method_name(method)
+        self.table_name = self.get_db_table_name(self.outpatient_db_title, self.method)
         self.db_path = db_name_from_table_name(self.table_name)
         self.date_column = self.metadata['datasets_data']['datasets_date_column_names']['outpatient']
 

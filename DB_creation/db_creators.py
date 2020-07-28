@@ -10,7 +10,7 @@ class BaseDB:
 
     def __init__(self):
         os.chdir('C:\\Users\\Boston\\PycharmProjects\\ClaimstoModels\\')
-        with open("Data/datasets_metadata.json", "r") as f:
+        with open("config\datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
 
         self.config = Configuration().get_config()
@@ -163,6 +163,8 @@ class InpatientDB(BaseDB):
     def make_sql(self,method):
         inpatient_diagnosis_columns = self.metadata['raw_tables_columns']['inpatient_diagnosis_columns']
         inpatient_hospitalization_columns = self.metadata['raw_tables_columns']['inpatient_hospitalization_columns']
+        inpatient_costs_columns = self.metadata['raw_tables_columns']['inpatient_cost_columns']
+
 
         name = self.get_method_name(method)
 
@@ -176,7 +178,7 @@ class InpatientDB(BaseDB):
             column_str = self.hcpcs_columns_str
             self.get_method_db(self.dataframe, inpatient_diagnosis_columns, name, column_str,self.inpatient_db_title)
         elif method == 'costs':
-            costs = self.dataframe[inpatient_diagnosis_columns].dropna(subset=[self.date_column]).fillna(0)
+            costs = self.dataframe[inpatient_costs_columns].dropna(subset=[self.date_column]).fillna(0)
             self.create_sql(costs, self.get_db_table_name(self.inpatient_db_title, name))
         elif method=='hospitalizations':
             hospitalizations = self.dataframe[inpatient_hospitalization_columns]

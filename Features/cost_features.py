@@ -4,8 +4,8 @@ from Preprocessing.Datasets import InpatientDataset, OutpatientDataset, CarrierD
 import json
 from Features.trends import Trends
 from Preprocessing.Datasets import Dataset
-from utils.utils import parse_date_column
-
+from utils.utils import parse_date_column, merge_dfs_on_column
+import time
 
 class CostFeatures(BaseFeature):
     def __init__(self):
@@ -22,33 +22,31 @@ class CostFeatures(BaseFeature):
 
     def calculate_batch(self, ids):
         results = pd.DataFrame({self.patient_id: ids})
+        # carrier_costs=self.get_carrier_costs(ids)
+        # inpatient_costs=self.get_inpatient_costs(ids)
+        # outpatient_costs=self.get_outpatient_costs(ids)
+        # complete_costs=  merge_dfs_on_column([results,carrier_costs,inpatient_costs,outpatient_costs], self.patient_id)
+        time.sleep(3)
+        return results
 
+        # todo add medication costs
+
+    def get_carrier_costs(self, ids):
+        results = pd.DataFrame({self.patient_id: ids})
         carrier_primary_care_costs = CarrierDataset(self.primary_care_costs_name).get_patient_lines_in_train_time(ids)
         carrier_nch_costs = CarrierDataset(self.NCH_costs_columns_name).get_patient_lines_in_train_time(ids)
         carrier_deductable_costs = CarrierDataset(self.deductable_costs_name).get_patient_lines_in_train_time(ids)
         carrier_coinsurance_costs = CarrierDataset(self.coinsurance_costs_name).get_patient_lines_in_train_time(ids)
         carrier_allowed_charge_costs = CarrierDataset(self.allowed_charge_costs_name).get_patient_lines_in_train_time(ids)
 
-        inpatient_costs = InpatientDataset(self.inpatient_costs_name).get_patient_lines_in_train_time(ids)
-        inpatient_columns = [col for col in inpatient_costs.columns if self.cost_col_string in col]
-        inpatient_trends=Trends().get_sum_trends(inpatient_costs,inpatient_columns,'CLM_FROM_DT')
+        carrier_dfs = [carrier_primary_care_costs, carrier_nch_costs, carrier_deductable_costs,
+                       carrier_coinsurance_costs,
+                       carrier_allowed_charge_costs]
 
-        outpatient_costs = OutpatientDataset(self.outpatient_costs_name).get_patient_lines_in_train_time(ids)
-        outpatient_columns = [col for col in outpatient_costs.columns if self.cost_col_string in col]
+        carrier_cost_sum = self.sum_by_patients_for_dfs(results, carrier_dfs)
 
-        dfs = [carrier_primary_care_costs, carrier_nch_costs, carrier_deductable_costs, carrier_coinsurance_costs,
-               carrier_allowed_charge_costs]
+        return carrier_cost_sum
 
-        cost_sum = self.sum_by_patients_for_dfs(results, dfs)
-        inpatient_sum = inpatient_costs.groupby(self.patient_id)[inpatient_columns].sum().reset_index()
-        outpatient_sum = outpatient_costs.groupby(self.patient_id)[outpatient_columns].sum().reset_index()
-
-        total=BeneficiaryDataset(self.year_08_str).get_patient_costs_lines(ids)
-        total9=BeneficiaryDataset('09').get_patient_costs_lines(ids)
-        total10=BeneficiaryDataset('10').get_patient_costs_lines(ids)
-
-        #todo add medication costs
-        return inpatient_sum
 
     def sum_by_patients_for_dfs(self, base_df, dfs):
         for df in dfs:
@@ -57,6 +55,20 @@ class CostFeatures(BaseFeature):
             base_df = base_df.merge(temp_result, on=self.patient_id, how='outer')
 
         return base_df
+
+    def get_inpatient_costs(self, ids):
+        inpatient_costs = InpatientDataset('costs').get_patient_lines_in_train_time(ids)
+        inpatient_columns = [col for col in inpatient_costs.columns if self.cost_col_string in col]
+        inpatient_trends = Trends().get_sum_trends(inpatient_costs, inpatient_columns, 'CLM_FROM_DT')
+        inpatient_cost_sum = inpatient_costs.groupby(self.patient_id)[inpatient_columns].sum().reset_index()
+        return pd.merge(inpatient_trends,inpatient_cost_sum, how='outer',on=self.patient_id )
+
+    def get_outpatient_costs(self, ids):
+        outpatient_costs = OutpatientDataset('costs').get_patient_lines_in_train_time(ids)
+        outpatient_columns = [col for col in outpatient_costs.columns if self.cost_col_string in col]
+        outpatient_trends = Trends().get_sum_trends(outpatient_costs, outpatient_columns, 'CLM_FROM_DT')
+        outpatient_cost_sum = outpatient_costs.groupby(self.patient_id)[outpatient_columns].sum().reset_index()
+        return pd.merge(outpatient_trends,outpatient_cost_sum, how='outer',on=self.patient_id )
 
 
 if __name__ == '__main__':
