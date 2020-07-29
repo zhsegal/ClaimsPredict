@@ -36,7 +36,7 @@ class BaseFeature():
         self.features_cache_path= 'cache/features'
         self.targets_cache_path='cache/targets'
         self.ndc_to_rxcui_path = 'Data/ndc_to_rxcui.csv'
-        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path).dropna().drop_duplicates()
+        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path, low_memory=False).dropna().drop_duplicates()
 
     def get_cache_path(self, ids, feature_name, path):
         return f'{path}/{feature_name}_{len(ids)}_patients.csv'

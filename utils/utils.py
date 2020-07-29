@@ -21,7 +21,7 @@ def get_rxcui_from_ndc(ndc):
     return(rxcui_num[0],rxcui_text[0])
 
 def parse_date_column (df, date_columns):
-    df[date_columns] = [datetime.strptime(date, '%Y%m%d') for date in df[date_columns].asty=pe(int).astype(str)]
+    df[date_columns] = [datetime.strptime(date, '%Y%m%d') for date in df[date_columns].astype(int).astype(str)]
     return df
 
 def time_from_string_to_int(string_time):

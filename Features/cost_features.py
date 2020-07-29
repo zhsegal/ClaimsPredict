@@ -22,12 +22,12 @@ class CostFeatures(BaseFeature):
 
     def calculate_batch(self, ids):
         results = pd.DataFrame({self.patient_id: ids})
-        # carrier_costs=self.get_carrier_costs(ids)
-        # inpatient_costs=self.get_inpatient_costs(ids)
-        # outpatient_costs=self.get_outpatient_costs(ids)
-        # complete_costs=  merge_dfs_on_column([results,carrier_costs,inpatient_costs,outpatient_costs], self.patient_id)
+        carrier_costs=self.get_carrier_costs(ids)
+        inpatient_costs=self.get_inpatient_costs(ids)
+        outpatient_costs=self.get_outpatient_costs(ids)
+        בcomplete_costs=  merge_dfs_on_column([results,carrier_costs,inpatient_costs,outpatient_costs], self.patient_id)
         time.sleep(3)
-        return results
+        return בcomplete_costs
 
         # todo add medication costs
 

@@ -11,12 +11,12 @@ class Trends(BaseFeature):
 
     def get_sum_trends(self, df, cost_columns, date_column):
 
-        results = df.groupby(self.patient_id)[date_column, cost_columns[0]].apply(lambda x: self.sum_trend(x,date_column, cost_columns[0],))
+        results = df.groupby(self.patient_id)[[date_column, cost_columns[0]]].apply(lambda x: self.sum_trend(x,date_column, cost_columns[0],))
         return results
 
     def sum_trend(self, df,date_column, cost_column):
         summed_dates=self.get_sums_by_dates(df,date_column,cost_column)
-        if len(summed_dates) < 2:
+        if (len(summed_dates) < 2) or sum(summed_dates==0):
             trend=0
             std=0
         else:

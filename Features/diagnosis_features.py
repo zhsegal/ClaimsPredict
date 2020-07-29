@@ -21,13 +21,13 @@ class DiagnosisFeatures(BaseFeature):
 
         batch_results=pd.DataFrame({self.patient_id:ids})
 
-        inpat_diags=InpatientDataset(self.diags_name).get_patient_lines_in_train_time(ids)
+        inpat_diags=InpatientDataset('diagnosis').get_patient_lines_in_train_time(ids)
         inpat_diags_with_symptom_name=self.merge_with_symptom_name(inpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
 
-        outpat_diags=OutpatientDataset(self.diags_name).get_patient_lines_in_train_time(ids)
+        outpat_diags=OutpatientDataset('diagnosis').get_patient_lines_in_train_time(ids)
         outpat_diags_with_symptom_name=self.merge_with_symptom_name(outpat_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
 
-        carrier_diags=CarrierDataset(self.diags_name).get_patient_lines_in_train_time(ids)
+        carrier_diags=CarrierDataset('diagnosis').get_patient_lines_in_train_time(ids)
         carrier_diags_with_symptom_name=self.merge_with_symptom_name(carrier_diags, self.diags_dict[self.mapping_prefix], self.method_name_columns)
 
 
