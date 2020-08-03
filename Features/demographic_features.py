@@ -10,11 +10,15 @@ class DemographicFeatures(BaseFeature):
     def __init__(self):
         super().__init__()
         self.year_08_str='08'
+        self.cat_columns=self.metadata['raw_tables_columns']['beneficiary_cat_columns']
+
 
     def calculate_batch(self, ids):
         results = BeneficiaryDataset(self.year_08_str).get_patient_demographics_lines(ids)
         results['AGE']=[(self.train_end_time - date).days / 365 for date in results.BENE_BIRTH_DT]
-        return results
+        for col in self.cat_columns:
+            results[col] = results[col].astype('category')
+        return results.drop('BENE_BIRTH_DT',axis=1)
 
 
 

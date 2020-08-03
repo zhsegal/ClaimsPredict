@@ -1,1 +1,0 @@
-print ("sencod_sddog")

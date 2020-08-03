@@ -21,17 +21,17 @@ class ProceduresFeatures(BaseFeature):
     def calculate_batch(self, ids):
         batch_results = pd.DataFrame({self.patient_id: ids})
 
-        inpat_procs = InpatientDataset(self.procs_name).get_patient_lines_in_train_time(ids)
+        inpat_procs = InpatientDataset('procedure').get_patient_lines_in_train_time(ids)
         inpat_procs.PROCS_CODE=string_to_int_else_nan(inpat_procs.PROCS_CODE)
         inpat_procs_with_symptom_name=self.merge_proc_with_symptom_name(inpat_procs, self.procs_dict[self.mapping_prefix], self.method_name_columns)
 
-        outpat_procs = OutpatientDataset(self.procs_name).get_patient_lines_in_train_time(ids)
+        outpat_procs = OutpatientDataset('procedure').get_patient_lines_in_train_time(ids)
         outpat_procs.PROCS_CODE = string_to_int_else_nan(outpat_procs.PROCS_CODE)
         outpat_procs_with_symptom_name = self.merge_proc_with_symptom_name(outpat_procs,
                                                                           self.procs_dict[self.mapping_prefix],
                                                                           self.method_name_columns)
 
-        carrier_procs = CarrierDataset(self.procs_name).get_patient_lines_in_train_time(ids)
+        carrier_procs = CarrierDataset('procedure').get_patient_lines_in_train_time(ids)
         carrier_procs.PROCS_CODE = string_to_int_else_nan(outpat_procs.PROCS_CODE)
         carrier_procs_with_symptom_name = self.merge_proc_with_symptom_name(carrier_procs,
                                                                            self.procs_dict[self.mapping_prefix],

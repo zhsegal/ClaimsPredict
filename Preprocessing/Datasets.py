@@ -78,7 +78,7 @@ class InpatientDataset(Dataset):
         self.method=self.get_method_name(method)
         self.table_name=self.get_db_table_name(self.inpatient_db_title, self.method)
         self.db_path=db_name_from_table_name(self.table_name)
-        self.date_column=self.metadata['datasets_data']['datasets_date_column_names']['inpatient_hospitalziations'] if method==self.get_method_name('hospitalizations') \
+        self.date_column=self.metadata['datasets_data']['datasets_date_column_names']['inpatient_hospitalziations'] if method=='hospitalizations' \
             else self.metadata['datasets_data']['datasets_date_column_names']['inpatient_claims']
 
     def get_patient_lines(self, id_list):
@@ -126,8 +126,9 @@ class OutpatientDataset(Dataset):
 class CarrierDataset(Dataset):
     def __init__(self, method):
         super().__init__()
-        self.table_type = self.metadata['datasets_data']['datasets_names']['carrier']
-        self.table_name = self.get_table_with_mehod_name(self.table_type, method)
+        self.table_type = self.get_db_name('carrier')
+        self.method = self.get_method_name(method)
+        self.table_name = self.get_table_with_mehod_name(self.table_type, self.method)
         self.db_path = db_name_from_table_name(self.table_name)
         self.date_column = self.metadata['datasets_data']['datasets_date_column_names']['carrier']
 

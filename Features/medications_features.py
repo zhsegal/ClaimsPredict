@@ -15,6 +15,8 @@ class MedicationFeatures(BaseFeature):
 
         with open("Data/Feature_mapping/medications.json", "r") as f:
             self.medications_dict = json.load(f)
+        self.ndc_to_rxcui_path = 'Data/ndc_to_rxcui.csv'
+        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path, low_memory=False).dropna().drop_duplicates()
         self.categorical_features_prefix='categorical_diagnosis'
         self.date_column_name='SRVC_DT'
         self.compliance_meds=self.medications_dict['compliance_meds']

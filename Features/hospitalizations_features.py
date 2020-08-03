@@ -16,7 +16,7 @@ class HospitalizationFeatures(BaseFeature):
     def calculate_batch(self, ids):
         batch_results = pd.DataFrame({self.patient_id: ids})
 
-        hospitalizations=InpatientDataset(self.hospitalizations_name).get_patient_lines_in_train_time(ids)
+        hospitalizations=InpatientDataset('hospitalizations').get_patient_lines_in_train_time(ids)
 
         hospitalization_events=self.hospiatlization_durations(hospitalizations)
         drg_counts=self.unique_event_counter(hospitalizations,self.drg_column)

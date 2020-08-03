@@ -16,14 +16,13 @@ class CategoricalTarget(BaseTarget):
     def calculate_batch(self, ids):
         batch_results=pd.DataFrame({self.patient_id:ids})
         if 'diags' in self.target_methods:
-            diagnosis=self.get_all_diagnosis_in_post_train_time(ids)
+            diagnosis=self.get_method_in_post_train_time(ids,'diagnosis')
             diagnosis_with_target_name=self.merge_with_symptom_name(diagnosis, self.diagnosis_dict, self.method_name_columns)
             first_diagnosis_time = diagnosis_with_target_name.groupby(self.patient_id)[self.date_columns].first().reset_index(name='diagnosis_time')
             first_diagnosis_time['target']=1
             batch_results=batch_results.merge(first_diagnosis_time, on=self.patient_id, how='left')
 
-        #preocedures=self.get_all_procedures_in_post_train_time(patient_ids) if 'procs' in self.target_methods else None
-        #medications=self.get_all_medications_in_post_train_time(patient_ids) if 'medications' in self.target_methods else None
+
         batch_results['diagnosis_time']=batch_results['diagnosis_time'].fillna(pd.to_datetime('2010-12-31'))
 
         return batch_results.fillna(0)

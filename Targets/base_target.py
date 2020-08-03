@@ -18,25 +18,17 @@ class BaseTarget(BaseFeature):
 
 
 
+    def get_method_name(self, method_name):
+        return self.config['preprocessing']['method_names'][method_name]
 
-
-    def get_all_diagnosis_in_post_train_time(self, ids):
-        relevant_cols=self.relevant_methods_columns(self.diags_name)
-        inpat_diags=InpatientDataset(self.diags_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
-        outpat_diags=OutpatientDataset(self.diags_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
-        carrier_diags=CarrierDataset(self.diags_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
+    def get_method_in_post_train_time(self, ids, method='diagnosis'):
+        relevant_cols=self.relevant_methods_columns(self.get_method_name(method))
+        inpat_diags=InpatientDataset(method).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
+        outpat_diags=OutpatientDataset(method).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
+        carrier_diags=CarrierDataset(method).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
 
 
         return pd.concat([inpat_diags,outpat_diags,carrier_diags])
-
-    def get_all_procedures_in_post_train_time(self, ids):
-        relevant_cols=self.relevant_methods_columns(self.procs_name)
-        inpat_diags=InpatientDataset(self.procs_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
-        outpat_procs=OutpatientDataset(self.procs_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
-        carrier_procs=CarrierDataset(self.procs_name).get_all_diagnosis_in_post_train_time(ids)[relevant_cols]
-
-
-        return pd.concat([inpat_diags, outpat_procs, carrier_procs])
 
 
     def get_all_medications_in_post_train_time(self, ids):

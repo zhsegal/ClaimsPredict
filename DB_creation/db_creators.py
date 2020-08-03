@@ -86,14 +86,11 @@ class MedicationsDB(BaseDB):
 
     def __init__(self):
         super().__init__()
-        self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv',nrows=100)
+        self.dataframe = pd.read_csv('Data/Raw_Data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
         self.ndc_columns='PROD_SRVC_ID'
 
     def make_sql(self):
         self.dataframe[self.ndc_columns]=[self.zero_pad(ndc) for ndc in self.dataframe[self.ndc_columns]]
-        rxcui_tuples=[get_rxcui_from_ndc(ndc) for ndc in self.dataframe[self.ndc_columns]]
-        self.dataframe['rxcui_num']=[tuple[0] for tuple in rxcui_tuples]
-        self.dataframe['rxcui_description'] = [tuple[1] for tuple in rxcui_tuples]
         self.create_sql(self.dataframe, self.medicaion_db_name)
         pass
 

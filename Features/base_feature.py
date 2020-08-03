@@ -27,16 +27,13 @@ class BaseFeature():
         self.item_col_name='item'
 
         self.train_end_time=time_from_sting((self.config['experiment']['experiment']))
-        self.diags_name = self.config['preprocessing']['method_names']['diagnosis']
-        self.procs_name = self.config['preprocessing']['method_names']['procedure']
-        self.hcpcs_name = self.config['preprocessing']['method_names']['hcpcs']
-        self.hospitalizations_name = self.config['preprocessing']['method_names']['hospitalizations']
+        # self.diags_name = self.config['preprocessing']['method_names']['diagnosis']
+        # self.procs_name = self.config['preprocessing']['method_names']['procedure']
+        # self.hcpcs_name = self.config['preprocessing']['method_names']['hcpcs']
         with open("config\datasets_metadata.json", "r") as f:
             self.metadata = json.load(f)
         self.features_cache_path= 'cache/features'
         self.targets_cache_path='cache/targets'
-        self.ndc_to_rxcui_path = 'Data/ndc_to_rxcui.csv'
-        self.ndc_to_rxcui = pd.read_csv(self.ndc_to_rxcui_path, low_memory=False).dropna().drop_duplicates()
 
     def get_cache_path(self, ids, feature_name, path):
         return f'{path}/{feature_name}_{len(ids)}_patients.csv'
@@ -95,7 +92,7 @@ class BaseFeature():
         mapping=pd.DataFrame()
         for key in item_dict:
             values='|'.join(item_dict.get(key))
-            item_df=table[table[item_description_columns].str.contains(values)]
+            item_df=table[table[item_description_columns].str.contains(values)].copy()
             item_df[self.method_subgrouping_column_name]=key
             mapping=mapping.append(item_df)
         return mapping

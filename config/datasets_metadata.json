@@ -26,7 +26,7 @@
   ["BENE_SEX_IDENT_CD",
     "SP_ALZHDMTA", "SP_CHF", "SP_CHRNKIDN",
        "SP_CNCR", "SP_COPD", "SP_DEPRESSN", "SP_DIABETES", "SP_ISCHMCHT",   "SP_OSTEOPRS", "SP_RA_OA", "SP_STRKETIA",
-    "BENE_ESRD_IND"
+    "BENE_ESRD_IND","BENE_RACE_CD"
   ],
   "beneficiary_demographics_columns":
           ["BENE_BIRTH_DT",
