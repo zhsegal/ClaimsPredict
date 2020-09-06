@@ -1,5 +1,5 @@
 {"procedure_mapping":
-  {"eye": ["eye","NEC"],
+  {"eye": ["eye"],
   "thyroid": ["Thyroid"],
   "vaccination": ["vaccination"]
   }
